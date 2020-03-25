@@ -11,10 +11,8 @@ import static org.jocl.CL.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.Formatter;
@@ -37,13 +35,19 @@ public class JOCLSample
     public static ObservableList<GraphicsDevice> getGraphicsDevices() {
         ObservableList<GraphicsDevice> graphicsDevices = FXCollections.observableArrayList();
 
-        // Obtain the number of platforms
-        int numPlatforms[] = new int[1];
-        clGetPlatformIDs(0, null, numPlatforms);
+        cl_platform_id platforms[] = new cl_platform_id[0];
+        try {
+            // Obtain the number of platforms
+            int numPlatforms[] = new int[1];
+            clGetPlatformIDs(0, null, numPlatforms);
 
-        // Obtain the platform IDs
-        cl_platform_id platforms[] = new cl_platform_id[numPlatforms[0]];
-        clGetPlatformIDs(platforms.length, platforms, null);
+            // Obtain the platform IDs
+            platforms = new cl_platform_id[numPlatforms[0]];
+            clGetPlatformIDs(platforms.length, platforms, null);
+        } catch (UnsatisfiedLinkError e) {
+            System.out.println("INFO: Could not initialize native OpenCL library:\n"+
+                    "\t- OpenCL will be disabled.");
+        }
 
         // Collect all devices of all platforms
         for (int i=0; i<platforms.length; i++)
@@ -230,16 +234,6 @@ public class JOCLSample
 
         return stringBuilder.toString();
     }
-
-    /*private static String simpleCalculationProgramSource =
-            "__kernel void "+
-                    "sampleKernel(__global const float *a,"+
-                    "             __global const float *b,"+
-                    "             __global float *c)"+
-                    "{"+
-                    "    int gid = get_global_id(0);"+
-                    "    c[gid] = a[gid] * b[gid];"+
-                    "}";*/
 
     public static boolean performSimpleGPUCalculationTest(cl_device_id device, cl_platform_id platform) {
         // Create input- and output data

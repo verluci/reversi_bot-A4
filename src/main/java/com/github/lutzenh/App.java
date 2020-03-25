@@ -28,7 +28,10 @@ public class App extends Application {
         Button gpuCalculationTest = new Button("Test OpenCL Device");
         gpuCalculationTest.setDisable(true);
         gpuCalculationTest.setOnAction(e -> {
-            JOCLSample.performSimpleGPUCalculationTest(selectedGraphicsDevice.getId(), selectedGraphicsDevice.getPlatform_id());
+            var passedSimpleGPUTest = JOCLSample.performSimpleGPUCalculationTest(
+                    selectedGraphicsDevice.getId(),
+                    selectedGraphicsDevice.getPlatform_id()
+            );
         });
 
         Button selectGPUButton = new Button("Choose Compute Device");

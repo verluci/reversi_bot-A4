@@ -55,9 +55,10 @@ Optional dependencies to install are the OpenCL libraries for performing GPU acc
 
 ```
 sudo apt install opencl-icd
+sudo apt install ocl-icd-opencl-dev
 ```
 
-> opencl-icd is a virtual package, you have to choose the right package depending on your GPU. The mesa drivers should work for most AMD GPU's. If you have an NVIDIA GPU use one of the nvidia opencl libraries or if you have an Intel GPU use the beignet library
+> opencl-icd is a virtual package, you have to choose the right package depending on your GPU. The mesa drivers should work for most AMD GPU's. If you have an NVIDIA GPU use one of the nvidia opencl libraries or if you have an Intel GPU use the beignet library.
 
 To run the `.jar` either launch it using your file-manager or go to the location of the `.jar` in your terminal and run the following command:
 
