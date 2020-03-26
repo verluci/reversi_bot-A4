@@ -101,7 +101,9 @@ public class GPUSelectionBox extends Stage {
     }
 
     public GraphicsDevice selectGraphicsDevice() {
-        this.showAndWait();
+        if(!this.isShowing())
+            this.showAndWait();
+
         return selectedGraphicsDevice;
     }
 }
