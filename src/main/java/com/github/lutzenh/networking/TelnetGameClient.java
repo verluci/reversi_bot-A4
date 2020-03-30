@@ -4,9 +4,12 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.json.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
 import com.github.lutzenh.networking.GameClientExceptions.*;
 
@@ -26,8 +29,11 @@ public class TelnetGameClient implements GameClient {
     private volatile boolean isOK;
     private volatile String error;
 
+    private ConcurrentHashMap<Integer, Challenge> activeChallenges;
+
     public TelnetGameClient() {
         returnQueue = new SynchronousQueue<>();
+        activeChallenges = new ConcurrentHashMap<>();
 
         returnedInfo = () -> {
             try {
@@ -83,6 +89,29 @@ public class TelnetGameClient implements GameClient {
 
                                 this.gameList = gameList;
                                 break;
+                            case "GAME":
+                                switch (split[2]) {
+                                    case "CHALLENGE":
+                                        if(split[3].equals("CANCELLED")) {
+                                            jsonString = string.substring("SVR GAME CHALLENGE CANCELLED ".length());
+                                            JSONObject object = new JSONObject(jsonString);
+                                            int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
+                                            activeChallenges.remove(challengeId);
+                                        } else {
+                                            jsonString = string.substring("SVR GAME CHALLENGE ".length());
+                                            JSONObject object = new JSONObject(jsonString);
+
+                                            int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
+                                            String playerName = object.getString("CHALLENGER");
+                                            String gameType = object.getString("GAMETYPE");
+
+                                            Challenge challenge = new Challenge(challengeId, new Player(playerName), gameType);
+                                            activeChallenges.put(challengeId, challenge);
+                                        }
+
+                                        break;
+                                }
+                                break;
                         }
                     }
                     else if (string.startsWith("ERR")) {
@@ -122,7 +151,6 @@ public class TelnetGameClient implements GameClient {
                 new Thread(processQueue).start();
             }
         } catch (IOException e) {
-            disconnect();
             throw new ConnectionException("Failed to connect to server: " + hostname + ":" + port);
         }
     }
@@ -164,8 +192,20 @@ public class TelnetGameClient implements GameClient {
         }
     }
 
+    /**
+     * Use this command if you want to logout, logging out closes the connection (this is how the server has been implemented sadly).
+     * @throws LoginException Thrown when logging out somehow fails.
+     */
     @Override
-    public void logout() throws LoginException { }
+    public void logout() throws LoginException {
+        try {
+            String output = "logout\n";
+            out.writeBytes(output);
+            out.flush();
+        } catch (Exception e) {
+            throw new LoginException(e.getMessage());
+        }
+    }
 
     /**
      * Retrieves a list of games that the server supports.
@@ -212,6 +252,18 @@ public class TelnetGameClient implements GameClient {
     }
 
     /**
+     * @return A list of challenges against you.
+     */
+    @Override
+    public Challenge[] getChallenges() {
+        var iterator = activeChallenges.values().iterator();
+        List<Challenge> list = new ArrayList<>();
+        iterator.forEachRemaining(list::add);
+
+        return list.toArray(new Challenge[0]);
+    }
+
+    /**
      * Use this method if you want to subscribe to a game inorder to auto-join a match.
      * @param gameName The name of the game you want to subscribe to.
      * @throws SubscribeException Thrown when the response is not OK but an ERR.
@@ -225,14 +277,48 @@ public class TelnetGameClient implements GameClient {
         }
     }
 
+    /**
+     * Use this method if you want to challenge a player to a match.
+     * @param player The player you want to challenge.
+     * @param gameName The name of the game you want to play with the challenged player.
+     * @throws ChallengePlayerException Thrown when challenging a player fails because of invalid Player-name or Game-name.
+     */
     @Override
-    public void challengePlayer(String playerName, String gameName) { }
+    public void challengePlayer(Player player, String gameName) throws ChallengePlayerException {
+        try {
+            sendAndReceiveProtocol("challenge \"" + player.getName() + "\" \"" + gameName + "\"");
+        } catch (Exception e) {
+            throw new ChallengePlayerException(e.getMessage());
+        }
+    }
 
+    /**
+     * Use this method when you want to accept a given challenge.
+     * @param challenge The challenge that should be accepted.
+     * @throws ChallengePlayerException Thrown when accepting a challenge fails.
+     */
     @Override
-    public void acceptChallenge(int challengeId) { }
+    public void acceptChallenge(Challenge challenge) throws ChallengePlayerException{
+        try {
+            sendAndReceiveProtocol("challenge accept " + challenge.getNumber());
+        } catch (Exception e) {
+            throw new ChallengePlayerException(e.getMessage());
+        }
+    }
 
+    /**
+     * Performs a move on the given position. beware! will return OK on illegal moves!
+     * @param position The position the move should be performed on.
+     * @throws MoveException Thrown when a move fails because of invalid syntax (not because of illegal moves.
+     */
     @Override
-    public void performMove(int position) { }
+    public void performMove(int position) throws MoveException {
+        try {
+            sendAndReceiveProtocol("move " + position);
+        } catch (Exception e) {
+            throw new MoveException(e.getMessage());
+        }
+    }
 
     /**
      * Use this method when you want to give up during a match.
@@ -311,6 +397,10 @@ public class TelnetGameClient implements GameClient {
                     break;
                 case "forfeit":
                     gameClient.forfeit();
+                    break;
+                case "challenges":
+                    var challenges = gameClient.getChallenges();
+                    System.out.println(Arrays.toString(challenges));
                     break;
             }
         }

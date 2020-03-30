@@ -3,21 +3,21 @@ package com.github.lutzenh.networking;
 import com.github.lutzenh.networking.GameClientExceptions.*;
 
 public interface GameClient {
+    void connect(String hostname, int port)                      throws ConnectionException;
+    void disconnect()                                            throws ConnectionException;
+    boolean getConnected();
 
-    public void connect(String hostname, int port)                      throws ConnectionException;
-    public void disconnect()                                            throws ConnectionException;
-    public boolean getConnected();
+    void login(String username)                                  throws LoginException;
+    void logout()                                                throws LoginException;
 
-    public void login(String username)                                  throws LoginException;
-    public void logout()                                                throws LoginException;
+    String[] getGameList();
+    Player[] getPlayerList();
+    Challenge[] getChallenges();
 
-    public String[] getGameList();
-    public Player[] getPlayerList();
+    void subscribeToGame(String gameName)                        throws SubscribeException;
+    void challengePlayer(Player player, String gameName)        throws ChallengePlayerException;
+    void acceptChallenge(Challenge challenge)                    throws ChallengePlayerException;
 
-    public void subscribeToGame(String gameName)                        throws SubscribeException;
-    public void challengePlayer(String playerName, String gameName)     throws ChallengePlayerException;
-    public void acceptChallenge(int challengeId)                        throws ChallengePlayerException;
-
-    public void performMove(int position)                               throws MoveException;
-    public void forfeit()                                               throws MoveException;
+    void performMove(int position)                               throws MoveException;
+    void forfeit()                                               throws MoveException;
 }
