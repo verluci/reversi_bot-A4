@@ -31,6 +31,10 @@ public class TelnetGameClient implements GameClient {
 
     private ConcurrentHashMap<Integer, Challenge> activeChallenges;
 
+    /**
+     * Constructor for TelnetGameClient.
+     * Use the method .connect() in this class if you want to initiate a connection.
+     */
     public TelnetGameClient() {
         returnQueue = new SynchronousQueue<>();
         activeChallenges = new ConcurrentHashMap<>();
@@ -131,7 +135,8 @@ public class TelnetGameClient implements GameClient {
     //region Game Methods
 
     /**
-     * Use this method to connect to a given telnet-server
+     * Use this method to connect to a given telnet-server.
+     * This method creates two running threads that are used to process information received from the server.
      * @param hostname The hostname of this server
      * @param port The port of this server. (usually 7789)
      * @throws ConnectionException Thrown when a connection to the server fails.
@@ -193,7 +198,8 @@ public class TelnetGameClient implements GameClient {
     }
 
     /**
-     * Use this command if you want to logout, logging out closes the connection (this is how the server has been implemented sadly).
+     * Use this command if you want to logout, logging out closes the connection
+     * (this is how the telnet-server has been implemented sadly).
      * @throws LoginException Thrown when logging out somehow fails.
      */
     @Override
@@ -309,7 +315,7 @@ public class TelnetGameClient implements GameClient {
     /**
      * Performs a move on the given position. beware! will return OK on illegal moves!
      * @param position The position the move should be performed on.
-     * @throws MoveException Thrown when a move fails because of invalid syntax (not because of illegal moves.
+     * @throws MoveException Thrown when a move fails because of invalid syntax (not because of illegal moves).
      */
     @Override
     public void performMove(int position) throws MoveException {
