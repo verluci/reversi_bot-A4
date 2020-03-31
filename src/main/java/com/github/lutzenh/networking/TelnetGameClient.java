@@ -101,7 +101,8 @@ public class TelnetGameClient extends GameClient {
                                             jsonString = string.substring("SVR GAME CHALLENGE CANCELLED ".length());
                                             JSONObject object = new JSONObject(jsonString);
                                             int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
-                                            activeChallenges.remove(challengeId);
+                                            Challenge challenge = activeChallenges.remove(challengeId);
+                                            notifyOnCancelChallenge(challenge);
                                         } else {
                                             jsonString = string.substring("SVR GAME CHALLENGE ".length());
                                             JSONObject object = new JSONObject(jsonString);
@@ -112,6 +113,7 @@ public class TelnetGameClient extends GameClient {
 
                                             Challenge challenge = new Challenge(challengeId, new Player(playerName), gameType);
                                             activeChallenges.put(challengeId, challenge);
+                                            notifyOnReceiveChallenge(challenge);
                                         }
                                         break;
                                     case "MATCH":
@@ -449,6 +451,14 @@ public class TelnetGameClient extends GameClient {
 
         gameClient.onTurn(message -> {
             System.out.println("onTurn(): " + message);
+        });
+
+        gameClient.onCancelChallenge(challenge -> {
+            System.out.println("CANCELED " + challenge.toString());
+        });
+
+        gameClient.onReceiveChallenge(challenge -> {
+            System.out.println("RECEIVED " + challenge.toString());
         });
 
         try {

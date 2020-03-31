@@ -1,10 +1,7 @@
 package com.github.lutzenh.networking;
 
 import com.github.lutzenh.networking.GameClientExceptions.*;
-import com.github.lutzenh.networking.listeners.GameEndListener;
-import com.github.lutzenh.networking.listeners.GameStartListener;
-import com.github.lutzenh.networking.listeners.MoveListener;
-import com.github.lutzenh.networking.listeners.TurnListener;
+import com.github.lutzenh.networking.listeners.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +18,8 @@ public abstract class GameClient {
     private List<GameStartListener> gameStartListeners = new ArrayList<>();
     private List<MoveListener> moveListeners = new ArrayList<>();
     private List<TurnListener> turnListeners = new ArrayList<>();
+    private List<ReceiveChallengeListener> receiveChallengeListeners = new ArrayList<>();
+    private List<CancelChallengeListener> cancelChallengeListeners = new ArrayList<>();
 
     //endregion
 
@@ -147,6 +146,22 @@ public abstract class GameClient {
     }
 
     /**
+     * Fires the given listener when a challenge is received.
+     * @param listener The listener that should be fired when a challenge is received.
+     */
+    public void onReceiveChallenge(ReceiveChallengeListener listener) {
+        receiveChallengeListeners.add(listener);
+    }
+
+    /**
+     * Fires the given listener when a challenge is cancelled.
+     * @param listener The listener that should be fired when a challenge is cancelled.
+     */
+    public void onCancelChallenge(CancelChallengeListener listener) {
+        cancelChallengeListeners.add(listener);
+    }
+
+    /**
      * Executes all listeners that have been subscribed to onGameEnd()
      * @param gameEnd Information about how the game has ended.
      */
@@ -183,6 +198,26 @@ public abstract class GameClient {
     protected void notifyOnTurn(String message) {
         for (TurnListener listener : turnListeners) {
             listener.onReceiveTurn(message);
+        }
+    }
+
+    /**
+     * Executes all listeners that have been subscribed to onReceiveChallenge()
+     * @param challenge The challenge that has been received.
+     */
+    protected void notifyOnReceiveChallenge(Challenge challenge) {
+        for (ReceiveChallengeListener listener : receiveChallengeListeners) {
+            listener.onReceiveChallenge(challenge);
+        }
+    }
+
+    /**
+     * Executes all listeners that have been subscribed to onCancelChallenge()
+     * @param challenge The challenge that has been cancelled.
+     */
+    protected void notifyOnCancelChallenge(Challenge challenge) {
+        for (CancelChallengeListener listener : cancelChallengeListeners) {
+            listener.onCancelChallenge(challenge);
         }
     }
 

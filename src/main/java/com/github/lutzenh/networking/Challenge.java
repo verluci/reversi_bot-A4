@@ -40,4 +40,13 @@ public class Challenge {
     public String getGameType() {
         return gameType;
     }
+
+    @Override
+    public String toString() {
+        return "Challenge{" +
+                "number=" + number +
+                ", player=" + player +
+                ", gameType='" + gameType + '\'' +
+                '}';
+    }
 }
