@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
 import com.github.lutzenh.networking.GameClientExceptions.*;
 
-public class TelnetGameClient implements GameClient {
+public class TelnetGameClient extends GameClient {
     private TelnetClient telnet;
     private DataOutputStream out;
     private DataInputStream in;
@@ -58,6 +58,7 @@ public class TelnetGameClient implements GameClient {
             }
         };
 
+        // TODO: Remove code-duplication and case-tree.
         processQueue  = () -> {
             while (isConnected) {
                 try {
@@ -112,7 +113,69 @@ public class TelnetGameClient implements GameClient {
                                             Challenge challenge = new Challenge(challengeId, new Player(playerName), gameType);
                                             activeChallenges.put(challengeId, challenge);
                                         }
+                                        break;
+                                    case "MATCH":
+                                        GameStart gameStart;
 
+                                        jsonString = string.substring("SVR GAME MATCH ".length());
+                                        JSONObject object = new JSONObject(jsonString);
+
+                                        String playerToMove = object.getString("PLAYERTOMOVE");
+                                        String opponent = object.getString("OPPONENT");
+                                        String gameType = object.getString("GAMETYPE");
+
+                                        if(playerToMove.equals(opponent)) {
+                                            Player enemy = new Player(opponent);
+                                            gameStart = new GameStart(enemy, enemy, gameType);
+                                        } else {
+                                            Player starter = new Player(playerToMove);
+                                            Player oppponent = new Player(opponent);
+                                            gameStart = new GameStart(starter, oppponent, gameType);
+                                        }
+                                        notifyOnGameStart(gameStart);
+                                        break;
+                                    case "YOURTURN":
+                                        jsonString = string.substring("SVR GAME YOURTURN ".length());
+                                        JSONObject turnObject = new JSONObject(jsonString);
+                                        String message = turnObject.getString("TURNMESSAGE");
+                                        notifyOnTurn(message);
+                                        break;
+                                    case "MOVE":
+                                        jsonString = string.substring("SVR GAME MOVE ".length());
+                                        JSONObject moveObject = new JSONObject(jsonString);
+
+                                        Player player = new Player(moveObject.getString("PLAYER"));
+                                        int setMove = Integer.parseInt(moveObject.getString("MOVE"));
+                                        String details = moveObject.getString("DETAILS");
+
+                                        Move move = new Move(player, setMove, details);
+                                        notifyOnMove(move);
+                                        break;
+                                    case "WIN":
+                                    case "DRAW":
+                                    case "LOSS":
+                                        String entry = "SVR GAME " + split[2] + " ";
+                                        jsonString = string.substring(entry.length());
+                                        JSONObject endGameObject = new JSONObject(jsonString);
+
+                                        int playerOneScore = Integer.parseInt(endGameObject.getString("PLAYERONESCORE"));
+                                        int playerTwoScore = Integer.parseInt(endGameObject.getString("PLAYERTWOSCORE"));
+                                        String comment = endGameObject.getString("COMMENT");
+
+                                        GameResult result = GameResult.LOSS;
+                                        switch (split[2]) {
+                                            case "WIN":
+                                                result = GameResult.WIN;
+                                                break;
+                                            case "DRAW":
+                                                result = GameResult.DRAW;
+                                                break;
+                                            case "LOSS":
+                                                result = GameResult.LOSS;
+                                                break;
+                                        }
+                                        GameEnd gameEnd = new GameEnd(result, playerOneScore, playerTwoScore, comment);
+                                        notifyOnGameEnd(gameEnd);
                                         break;
                                 }
                                 break;
@@ -371,6 +434,22 @@ public class TelnetGameClient implements GameClient {
     // TODO: Remove this entry-point when all game-methods have been implemented.
     public static void main(String[] args) throws ConnectionException, LoginException, SubscribeException, MoveException {
         TelnetGameClient gameClient = new TelnetGameClient();
+
+        gameClient.onMove(move -> {
+            System.out.println(move.toString());
+        });
+
+        gameClient.onGameStart(gameStart -> {
+            System.out.println(gameStart.toString());
+        });
+
+        gameClient.onGameEnd(gameEnd -> {
+            System.out.println(gameEnd.toString());
+        });
+
+        gameClient.onTurn(message -> {
+            System.out.println("onTurn(): " + message);
+        });
 
         try {
             gameClient.connect("localhost", 7789);
