@@ -1,4 +1,4 @@
-package com.github.lutzenh.networking;
+package com.github.lutzenh.networking.types;
 
 /**
  * This class contains information about a move that has been performed by a player.

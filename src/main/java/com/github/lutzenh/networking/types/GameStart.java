@@ -1,4 +1,4 @@
-package com.github.lutzenh.networking;
+package com.github.lutzenh.networking.types;
 
 /**
  * This class is used when a match has started. (info about the starting conditions are contained in this class.

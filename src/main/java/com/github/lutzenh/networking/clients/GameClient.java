@@ -1,7 +1,8 @@
-package com.github.lutzenh.networking;
+package com.github.lutzenh.networking.clients;
 
 import com.github.lutzenh.networking.GameClientExceptions.*;
 import com.github.lutzenh.networking.listeners.*;
+import com.github.lutzenh.networking.types.*;
 
 import java.util.ArrayList;
 import java.util.List;

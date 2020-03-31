@@ -1,13 +1,4 @@
-package com.github.lutzenh.networking;
-
-/**
- * An enum that gives information about a game's ending state.
- */
-enum GameResult {
-    WIN,
-    LOSS,
-    DRAW
-}
+package com.github.lutzenh.networking.types;
 
 /**
  * This class can be used when receiving a listener on a game's ending.

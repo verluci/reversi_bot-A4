@@ -1,13 +1,12 @@
-package com.github.lutzenh.networking;
+package com.github.lutzenh.networking.clients;
 
+import com.github.lutzenh.networking.types.*;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.json.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
@@ -429,75 +428,6 @@ public class TelnetGameClient extends GameClient {
         } catch (IOException e) {
             e.printStackTrace();
             throw new Exception("Failed command:" + command);
-        }
-    }
-
-    // This entry-point is for testing only!
-    // TODO: Remove this entry-point when all game-methods have been implemented.
-    public static void main(String[] args) throws ConnectionException, LoginException, SubscribeException, MoveException {
-        TelnetGameClient gameClient = new TelnetGameClient();
-
-        gameClient.onMove(move -> {
-            System.out.println(move.toString());
-        });
-
-        gameClient.onGameStart(gameStart -> {
-            System.out.println(gameStart.toString());
-        });
-
-        gameClient.onGameEnd(gameEnd -> {
-            System.out.println(gameEnd.toString());
-        });
-
-        gameClient.onTurn(message -> {
-            System.out.println("onTurn(): " + message);
-        });
-
-        gameClient.onCancelChallenge(challenge -> {
-            System.out.println("CANCELED " + challenge.toString());
-        });
-
-        gameClient.onReceiveChallenge(challenge -> {
-            System.out.println("RECEIVED " + challenge.toString());
-        });
-
-        try {
-            gameClient.connect("localhost", 7789);
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        Scanner scanner = new Scanner(System.in);
-        while (gameClient.getConnected()) {
-            String input = scanner.nextLine();
-            var splitInput = input.split(" ");
-            switch (splitInput[0]) {
-                case "login":
-                    gameClient.login(splitInput[1]);
-                    break;
-                case "sub":
-                    gameClient.subscribeToGame(splitInput[1]);
-                    break;
-                case "exit":
-                    gameClient.disconnect();
-                    break;
-                case "players":
-                    var playerList = gameClient.getPlayerList();
-                    System.out.println(Arrays.toString(playerList));
-                    break;
-                case "games":
-                    var gameList = gameClient.getGameList();
-                    System.out.println(Arrays.toString(gameList));
-                    break;
-                case "forfeit":
-                    gameClient.forfeit();
-                    break;
-                case "challenges":
-                    var challenges = gameClient.getChallenges();
-                    System.out.println(Arrays.toString(challenges));
-                    break;
-            }
         }
     }
 }

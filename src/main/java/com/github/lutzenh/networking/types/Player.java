@@ -1,4 +1,4 @@
-package com.github.lutzenh.networking;
+package com.github.lutzenh.networking.types;
 
 import java.util.Objects;
 

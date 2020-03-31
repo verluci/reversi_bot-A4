@@ -1,4 +1,4 @@
-package com.github.lutzenh.networking;
+package com.github.lutzenh.networking.types;
 
 /**
  * This class holds information about a challenge against the connected client.
