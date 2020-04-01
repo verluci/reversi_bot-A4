@@ -57,143 +57,143 @@ public class TelnetGameClient extends GameClient {
             }
         };
 
-        // TODO: Remove code-duplication and case-tree.
         processQueue  = () -> {
             while (isConnected) {
                 try {
                     String string = returnQueue.take();
-                    System.out.println(string);
-
-                    String jsonString;
-                    JSONArray array;
-
-                    if(string.startsWith("SVR")) {
-                        String[] split = string.split(" ");
-
-                        switch (split[1]) {
-                            case "PLAYERLIST":
-                                jsonString = string.substring("SVR PLAYERLIST ".length());
-                                array = new JSONArray(jsonString);
-
-                                Player[] playerList = new Player[array.length()];
-                                for (int i = 0; i < array.length(); i++) {
-                                    playerList[i] = new Player(array.getString(i));
-                                }
-                                this.playerList = playerList;
-
-                                break;
-                            case "GAMELIST":
-                                jsonString = string.substring("SVR GAMELIST ".length());
-                                array = new JSONArray(jsonString);
-
-                                String[] gameList = new String[array.length()];
-                                for (int i = 0; i < array.length(); i++) {
-                                    gameList[i] = array.getString(i);
-                                }
-
-                                this.gameList = gameList;
-                                break;
-                            case "GAME":
-                                switch (split[2]) {
-                                    case "CHALLENGE":
-                                        if(split[3].equals("CANCELLED")) {
-                                            jsonString = string.substring("SVR GAME CHALLENGE CANCELLED ".length());
-                                            JSONObject object = new JSONObject(jsonString);
-                                            int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
-                                            Challenge challenge = activeChallenges.remove(challengeId);
-                                            notifyOnCancelChallenge(challenge);
-                                        } else {
-                                            jsonString = string.substring("SVR GAME CHALLENGE ".length());
-                                            JSONObject object = new JSONObject(jsonString);
-
-                                            int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
-                                            String playerName = object.getString("CHALLENGER");
-                                            String gameType = object.getString("GAMETYPE");
-
-                                            Challenge challenge = new Challenge(challengeId, new Player(playerName), gameType);
-                                            activeChallenges.put(challengeId, challenge);
-                                            notifyOnReceiveChallenge(challenge);
-                                        }
-                                        break;
-                                    case "MATCH":
-                                        GameStart gameStart;
-
-                                        jsonString = string.substring("SVR GAME MATCH ".length());
-                                        JSONObject object = new JSONObject(jsonString);
-
-                                        String playerToMove = object.getString("PLAYERTOMOVE");
-                                        String opponent = object.getString("OPPONENT");
-                                        String gameType = object.getString("GAMETYPE");
-
-                                        if(playerToMove.equals(opponent)) {
-                                            Player enemy = new Player(opponent);
-                                            gameStart = new GameStart(enemy, enemy, gameType);
-                                        } else {
-                                            Player starter = new Player(playerToMove);
-                                            Player oppponent = new Player(opponent);
-                                            gameStart = new GameStart(starter, oppponent, gameType);
-                                        }
-                                        notifyOnGameStart(gameStart);
-                                        break;
-                                    case "YOURTURN":
-                                        jsonString = string.substring("SVR GAME YOURTURN ".length());
-                                        JSONObject turnObject = new JSONObject(jsonString);
-                                        String message = turnObject.getString("TURNMESSAGE");
-                                        notifyOnTurn(message);
-                                        break;
-                                    case "MOVE":
-                                        jsonString = string.substring("SVR GAME MOVE ".length());
-                                        JSONObject moveObject = new JSONObject(jsonString);
-
-                                        Player player = new Player(moveObject.getString("PLAYER"));
-                                        int setMove = Integer.parseInt(moveObject.getString("MOVE"));
-                                        String details = moveObject.getString("DETAILS");
-
-                                        Move move = new Move(player, setMove, details);
-                                        notifyOnMove(move);
-                                        break;
-                                    case "WIN":
-                                    case "DRAW":
-                                    case "LOSS":
-                                        String entry = "SVR GAME " + split[2] + " ";
-                                        jsonString = string.substring(entry.length());
-                                        JSONObject endGameObject = new JSONObject(jsonString);
-
-                                        int playerOneScore = Integer.parseInt(endGameObject.getString("PLAYERONESCORE"));
-                                        int playerTwoScore = Integer.parseInt(endGameObject.getString("PLAYERTWOSCORE"));
-                                        String comment = endGameObject.getString("COMMENT");
-
-                                        GameResult result = GameResult.LOSS;
-                                        switch (split[2]) {
-                                            case "WIN":
-                                                result = GameResult.WIN;
-                                                break;
-                                            case "DRAW":
-                                                result = GameResult.DRAW;
-                                                break;
-                                            case "LOSS":
-                                                result = GameResult.LOSS;
-                                                break;
-                                        }
-                                        GameEnd gameEnd = new GameEnd(result, playerOneScore, playerTwoScore, comment);
-                                        notifyOnGameEnd(gameEnd);
-                                        break;
-                                }
-                                break;
-                        }
-                    }
-                    else if (string.startsWith("ERR")) {
-                        error = string;
-                    }
-                    else if (string.startsWith("OK")) {
-                        isOK = true;
-                    }
-
+                    processQueuedString(string);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         };
+    }
+
+    public void processQueuedString(String string) {
+        String jsonString;
+        JSONArray array;
+
+        if(string.startsWith("SVR")) {
+            String[] split = string.split(" ");
+
+            switch (split[1]) {
+                case "PLAYERLIST":
+                    jsonString = string.substring("SVR PLAYERLIST ".length());
+                    array = new JSONArray(jsonString);
+
+                    Player[] playerList = new Player[array.length()];
+                    for (int i = 0; i < array.length(); i++) {
+                        playerList[i] = new Player(array.getString(i));
+                    }
+                    this.playerList = playerList;
+
+                    break;
+                case "GAMELIST":
+                    jsonString = string.substring("SVR GAMELIST ".length());
+                    array = new JSONArray(jsonString);
+
+                    String[] gameList = new String[array.length()];
+                    for (int i = 0; i < array.length(); i++) {
+                        gameList[i] = array.getString(i);
+                    }
+
+                    this.gameList = gameList;
+                    break;
+                case "GAME":
+                    switch (split[2]) {
+                        case "CHALLENGE":
+                            if(split[3].equals("CANCELLED")) {
+                                jsonString = string.substring("SVR GAME CHALLENGE CANCELLED ".length());
+                                JSONObject object = new JSONObject(jsonString);
+                                int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
+                                Challenge challenge = activeChallenges.remove(challengeId);
+                                notifyOnCancelChallenge(challenge);
+                            } else {
+                                jsonString = string.substring("SVR GAME CHALLENGE ".length());
+                                JSONObject object = new JSONObject(jsonString);
+
+                                int challengeId = Integer.parseInt(object.getString("CHALLENGENUMBER"));
+                                String playerName = object.getString("CHALLENGER");
+                                String gameType = object.getString("GAMETYPE");
+
+                                Challenge challenge = new Challenge(challengeId, new Player(playerName), gameType);
+                                activeChallenges.put(challengeId, challenge);
+                                notifyOnReceiveChallenge(challenge);
+                            }
+                            break;
+                        case "MATCH":
+                            GameStart gameStart;
+
+                            jsonString = string.substring("SVR GAME MATCH ".length());
+                            JSONObject object = new JSONObject(jsonString);
+
+                            String playerToMove = object.getString("PLAYERTOMOVE");
+                            String opponent = object.getString("OPPONENT");
+                            String gameType = object.getString("GAMETYPE");
+
+                            if(playerToMove.equals(opponent)) {
+                                Player enemy = new Player(opponent);
+                                gameStart = new GameStart(enemy, enemy, gameType);
+                            } else {
+                                Player starter = new Player(playerToMove);
+                                Player oppponent = new Player(opponent);
+                                gameStart = new GameStart(starter, oppponent, gameType);
+                            }
+                            notifyOnGameStart(gameStart);
+                            break;
+                        case "YOURTURN":
+                            jsonString = string.substring("SVR GAME YOURTURN ".length());
+                            JSONObject turnObject = new JSONObject(jsonString);
+                            String message = turnObject.getString("TURNMESSAGE");
+                            notifyOnTurn(message);
+                            break;
+                        case "MOVE":
+                            jsonString = string.substring("SVR GAME MOVE ".length());
+                            JSONObject moveObject = new JSONObject(jsonString);
+
+                            Player player = new Player(moveObject.getString("PLAYER"));
+                            int setMove = Integer.parseInt(moveObject.getString("MOVE"));
+                            String details = moveObject.getString("DETAILS");
+
+                            Move move = new Move(player, setMove, details);
+                            notifyOnMove(move);
+                            break;
+                        case "WIN":
+                        case "DRAW":
+                        case "LOSS":
+                            String entry = "SVR GAME " + split[2] + " ";
+                            jsonString = string.substring(entry.length());
+                            JSONObject endGameObject = new JSONObject(jsonString);
+
+                            int playerOneScore = Integer.parseInt(endGameObject.getString("PLAYERONESCORE"));
+                            int playerTwoScore = Integer.parseInt(endGameObject.getString("PLAYERTWOSCORE"));
+                            String comment = endGameObject.getString("COMMENT");
+
+                            GameResult result = GameResult.LOSS;
+                            switch (split[2]) {
+                                case "WIN":
+                                    result = GameResult.WIN;
+                                    break;
+                                case "DRAW":
+                                    result = GameResult.DRAW;
+                                    break;
+                                case "LOSS":
+                                    result = GameResult.LOSS;
+                                    break;
+                            }
+                            GameEnd gameEnd = new GameEnd(result, playerOneScore, playerTwoScore, comment);
+                            notifyOnGameEnd(gameEnd);
+                            break;
+                    }
+                    break;
+            }
+        }
+        else if (string.startsWith("ERR")) {
+            error = string;
+        }
+        else if (string.startsWith("OK")) {
+            isOK = true;
+        }
     }
 
     //region Game Methods
