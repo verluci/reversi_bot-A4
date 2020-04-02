@@ -1,0 +1,308 @@
+package com.github.verluci.reversi.game;
+
+import com.github.verluci.reversi.game.events.GameEndListener;
+import com.github.verluci.reversi.game.events.GameStartListener;
+import com.github.verluci.reversi.game.events.MoveListener;
+import com.github.verluci.reversi.game.events.TurnListener;
+
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This class contains an abstract definition of a two-player board-game.
+ */
+public abstract class Game {
+    public enum Player { UNDEFINED, PLAYER1, PLAYER2 }
+    public enum GameState { UNDEFINED, RUNNING, ENDED }
+
+    private int playerOneScore;
+    private int playerTwoScore;
+
+    protected String name;
+    protected GameBoard board;
+
+    private GameState currentGameState;
+    private Player currentPlayer;
+
+    //region Listener Declaration
+
+    private List<GameEndListener> gameEndListeners = new ArrayList<>();
+    private List<GameStartListener> gameStartListeners = new ArrayList<>();
+    private List<MoveListener> moveListeners = new ArrayList<>();
+    private List<MoveListener> invalidMoveListeners = new ArrayList<>();
+    private List<TurnListener> turnListeners = new ArrayList<>();
+
+    //endregion
+
+    /**
+     * Constructor for Game
+     * @param name The name of this game
+     * @param board The board this game is played on.
+     */
+    public Game(String name, GameBoard board) {
+        this.name = name;
+        this.board = board;
+        this.currentGameState = GameState.UNDEFINED;
+        this.currentPlayer = Player.UNDEFINED;
+    }
+
+    public abstract boolean isValidMove(Player player, int x, int y);
+    protected abstract void performMove(Player player, int x, int y);
+
+    protected abstract List<Tile> getStartingTiles();
+    public abstract List<Tile> listPossibleMoves(Player player);
+
+    protected abstract boolean hasGameEnded();
+    protected abstract Player calculateNextPlayer(Player currentPlayer);
+    protected abstract Player checkLeadingPlayer();
+
+    /**
+     * Will try a move if it is possible.
+     * @param player The Player that is trying the move.
+     * @param x The horizontal position of the tile the move is placed on.
+     * @param y The vertical position of the tile the move is placed on.
+     * @return If the move has been performed successful.
+     */
+    public boolean tryMove(Player player, int x, int y) {
+        boolean isValidMove = isValidMove(player, x, y);
+
+        if(isValidMove) {
+            performMove(player, x, y);
+            notifyOnMove(player, x, y);
+
+            if(hasGameEnded()) {
+                Player leadingPlayer = checkLeadingPlayer();
+                stopGame(leadingPlayer);
+            }
+            else {
+                Player nextPlayer = calculateNextPlayer(player);
+                setCurrentPlayer(nextPlayer);
+            }
+        } else {
+            notifyOnInvalidMove(player, x, y);
+        }
+
+        return false;
+    }
+
+    /**
+     * Use this method if you want to start the game.
+     * @param startingPlayer The player that should go first.
+     */
+    public void startGame(Player startingPlayer) {
+        if(currentGameState == GameState.RUNNING)
+            throw new IllegalArgumentException("The game is already running!");
+        else
+            currentGameState = GameState.RUNNING;
+
+        board.empty();
+        board.setTiles(getStartingTiles());
+
+        currentPlayer = startingPlayer;
+        notifyOnGameStart(startingPlayer);
+    };
+
+    /**
+     * Use this method if you want to stop the game.
+     * @param winner The player that should be announced winner when the game is stopped.
+     */
+    public void stopGame(Player winner) {
+        currentGameState = GameState.ENDED;
+        currentPlayer = Player.UNDEFINED;
+        notifyOnGameEnd(winner);
+    }
+
+    //region Getters and Setters
+
+    /**
+     * @return The name of this Game.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return The board the game is being played on.
+     */
+    public GameBoard getBoard() {
+        return board;
+    }
+
+    /**
+     * @return The current state of the game.
+     */
+    public GameState getCurrentGameState() {
+        return currentGameState;
+    }
+
+    /**
+     * Use this if you want to change the current state of the game.
+     * @param currentGameState The state the game should be changed to.
+     */
+    protected void setCurrentGameState(GameState currentGameState) {
+        this.currentGameState = currentGameState;
+    }
+
+    /**
+     * @return The player that is currently performing a move.
+     */
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    /**
+     * Use this method if you want to who's turn it is.
+     * @param currentPlayer The player that should have the turn.
+     */
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+        notifyOnNextPlayer(currentPlayer);
+    }
+
+    /**
+     * @param player The player the score should be retrieved from.
+     * @return The current score of a player.
+     */
+    public int getPlayerScore(Player player) {
+        if(player == Player.PLAYER1)
+            return playerOneScore;
+        else if(player == Player.PLAYER2)
+            return playerTwoScore;
+        else
+            throw new InvalidParameterException("A non valid player has been given!");
+    };
+
+    /**
+     * Use this method if you want to change the score of a player.
+     * @param player The player the score should be changed from.
+     * @param score The new score this player should get.
+     */
+    public void setPlayerScore(Player player, int score) {
+        switch (player) {
+            case PLAYER1:
+                playerOneScore = score;
+                break;
+            case PLAYER2:
+                playerTwoScore = score;
+                break;
+            case UNDEFINED:
+                throw new InvalidParameterException("A non valid player has been given!");
+        }
+    };
+
+    /**
+     * This method increments the score of the given player by one.
+     * @param player The player the score should be incremented for.
+     */
+    public void incrementPlayerScore(Player player) {
+        setPlayerScore(player, getPlayerScore(player) + 1);
+    };
+
+    /**
+     * This method decrements the score of the given player by one.
+     * @param player The player the score should be decremented for.
+     */
+    public void decrementPlayerScore(Player player) {
+        setPlayerScore(player, getPlayerScore(player) - 1);
+    };
+
+    //endregion
+
+    //region Events
+
+    /**
+     * Fires the given listener when a game ends.
+     * @param listener The listener that should be fired when the game ends.
+     */
+    public void onGameEnd(GameEndListener listener) {
+        gameEndListeners.add(listener);
+    }
+
+    /**
+     * Fires the given listener when a game begins.
+     * @param listener The listener that should be fired when a game begins.
+     */
+    public void onGameStart(GameStartListener listener) {
+        gameStartListeners.add(listener);
+    }
+
+    /**
+     * Fires the given listener when a valid move has been made.
+     * @param listener The listener that should be fired when a valid move has been made.
+     */
+    public void onMove(MoveListener listener) {
+        moveListeners.add(listener);
+    }
+
+    /**
+     * Fires the given listener when an invalid move has been made.
+     * @param listener The listener that should be fired when an invalid move has been made.
+     */
+    public void onInvalidMove(MoveListener listener) {
+        invalidMoveListeners.add(listener);
+    }
+
+    /**
+     * Fires the given listener when the turn has changed to a certain player.
+     * (This will also fire when a player is allowed to move in a row)
+     * @param listener The listener that should be fired when a turn is set for a certain player
+     */
+    public void onNextPlayer(TurnListener listener) {
+        turnListeners.add(listener);
+    }
+
+    /**
+     * Executes all listeners that have been subscribed to onGameEnd()
+     * @param winner The player that has won the game.
+     */
+    protected void notifyOnGameEnd(Player winner) {
+        for (GameEndListener listener : gameEndListeners)
+            listener.onGameEnd(winner, playerOneScore, playerTwoScore);
+    }
+
+    /**
+     * Executes all listeners that have been subscribed to onGameStart()
+     * @param starter The player that begins.
+     */
+    protected void notifyOnGameStart(Player starter) {
+        for (GameStartListener listener : gameStartListeners)
+            listener.onGameStart(starter);
+    }
+
+    /**
+     * Executes all listeners that have been subscribed to onMove()
+     * @param mover The player that has made the move.
+     * @param x The x position of the move.
+     * @param y The y position of the move.
+     */
+    protected void notifyOnMove(Player mover, int x, int y) {
+        for (MoveListener listener : moveListeners) {
+            listener.OnMove(mover, x, y);
+        }
+    }
+
+    /**
+     * Executes all listeners that have been subscribed to onMove()
+     * @param mover The player that has made the move.
+     * @param x The x position of the move.
+     * @param y The y position of the move.
+     */
+    protected void notifyOnInvalidMove(Player mover, int x, int y) {
+        for (MoveListener listener : invalidMoveListeners) {
+            listener.OnMove(mover, x, y);
+        }
+    }
+
+    /**
+     * Executes all listeners when the next move is allowed to be made by a player.
+     * @param player The player that is allowed to make a move.
+     */
+    protected void notifyOnNextPlayer(Player player) {
+        for (TurnListener listener : turnListeners) {
+            listener.onNextPlayer(player);
+        }
+    }
+
+    //endregion
+}
