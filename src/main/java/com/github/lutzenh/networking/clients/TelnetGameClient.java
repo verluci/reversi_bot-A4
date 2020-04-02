@@ -17,11 +17,11 @@ public class TelnetGameClient extends GameClient {
     private DataOutputStream out;
     private DataInputStream in;
 
-    boolean isConnected;
+    private boolean isConnected;
 
     private BlockingQueue<String> returnQueue;
-    Runnable returnedInfo;
-    Runnable processQueue;
+    private Runnable returnedInfo;
+    private Runnable processQueue;
 
     private volatile Player[] playerList;
     private volatile String[] gameList;
