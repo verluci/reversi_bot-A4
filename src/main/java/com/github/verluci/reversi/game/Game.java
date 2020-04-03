@@ -110,25 +110,29 @@ public abstract class Game {
      * @return If the move has been performed successful.
      */
     public boolean tryMove(Player player, int x, int y) {
-        boolean isValidMove = isValidMove(player, x, y);
+        if(player.equals(currentPlayer)) {
+            boolean isValidMove = isValidMove(player, x, y);
 
-        if(isValidMove) {
-            performMove(player, x, y);
-            notifyOnMove(player, x, y);
+            if(isValidMove) {
+                performMove(player, x, y);
+                notifyOnMove(player, x, y);
 
-            if(hasGameEnded()) {
-                Player leadingPlayer = checkLeadingPlayer();
-                stopGame(leadingPlayer);
+                if(hasGameEnded()) {
+                    Player leadingPlayer = checkLeadingPlayer();
+                    stopGame(leadingPlayer);
+                }
+                else {
+                    Player nextPlayer = calculateNextPlayer(player);
+                    setCurrentPlayer(nextPlayer);
+
+                    clearValidMoves();
+                    findValidMoves(nextPlayer);
+                }
+
+                return true;
+            } else {
+                notifyOnInvalidMove(player, x, y);
             }
-            else {
-                Player nextPlayer = calculateNextPlayer(player);
-                setCurrentPlayer(nextPlayer);
-
-                clearValidMoves();
-                findValidMoves(nextPlayer);
-            }
-        } else {
-            notifyOnInvalidMove(player, x, y);
         }
 
         return false;

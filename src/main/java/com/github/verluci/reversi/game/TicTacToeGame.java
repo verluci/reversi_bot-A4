@@ -3,7 +3,6 @@ package com.github.verluci.reversi.game;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * This class is an implementation of the game Tic-tac-toe
@@ -134,50 +133,5 @@ public class TicTacToeGame extends Game {
     @Override
     public List<Tile> getStartingTiles() {
         return new ArrayList<>();
-    }
-
-    // TODO: Remove this entry-point when Unit testing for this game has been implemented.
-    /**
-     * A temporary entry-point to test TicTacToe games PvP.
-     * @param args Unused.
-     */
-    public static void main(String[] args) {
-        Game game = new TicTacToeGame();
-
-        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
-            System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);
-        });
-
-        game.onGameStart(startingPlayer -> {
-            System.out.println("Game has started: startingPlayer=" + startingPlayer);
-        });
-
-        game.onMove((mover, xPosition, yPosition) -> {
-            System.out.println("Move=" + mover + " - " + xPosition + ", " + yPosition);
-        });
-
-        game.onInvalidMove((mover, xPosition, yPosition) -> {
-            System.out.println("Invalid Move=" + mover + " - " + xPosition + ", " + yPosition);
-        });
-
-        game.onNextPlayer(player -> {
-            System.out.println("\n" + game.getBoard().toString() + "\n");
-            System.out.println("Next Player=" + player + "\n");
-        });
-
-        game.startGame(Player.PLAYER1);
-        System.out.println("\n" + game.getBoard().toString() + "\n");
-        System.out.println("Next Player=" + game.getCurrentPlayer() + "\n");
-
-        Scanner scanner = new Scanner(System.in);
-        while (game.getCurrentGameState() == GameState.RUNNING) {
-            String input = scanner.nextLine();
-            var splitInput = input.split(" ");
-
-            int x = Integer.parseInt(splitInput[0]);
-            int y = Integer.parseInt(splitInput[1]);
-
-            game.tryMove(game.getCurrentPlayer(), x, y);
-        }
     }
 }
