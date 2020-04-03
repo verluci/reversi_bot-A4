@@ -26,7 +26,7 @@ public class LoginController extends AnchorPane {
     @FXML
     public void loginUser(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("lobby.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
         stage.setScene(scene);

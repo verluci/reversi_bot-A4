@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 public class LobbyController extends AnchorPane {
     @FXML private ListView currentPlayers;
 
+
     public void initialize() {
         ObservableList<String> names = FXCollections.observableArrayList(
                 "Julia", "Ian", "Sue", "Matthew", "Hannah", "Stephan", "Denise");
@@ -26,38 +27,22 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void othelloVsAI(ActionEvent event) throws IOException {
-        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+    public void othelloVsAI(ActionEvent event){
+
     }
 
     @FXML
-    public void othelloVsPlayer(ActionEvent event) throws IOException {
-        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+    public void othelloVsPlayer(ActionEvent event){
+
     }
 
     @FXML
-    public void tickVsPlayer(ActionEvent event) throws IOException {
-        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+    public void tickVsPlayer(ActionEvent event){
+
     }
 
     @FXML
-    public void tickVsAI(ActionEvent event) throws IOException {
-        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+    public void tickVsAI(ActionEvent event){
+
     }
 }
