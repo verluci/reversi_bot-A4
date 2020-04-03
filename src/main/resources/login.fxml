@@ -8,12 +8,12 @@
 
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.LoginController">
    <children>
-      <Label id="header-kies-naam" layoutX="581.0" layoutY="294.0" prefHeight="27.0" prefWidth="119.0" styleClass="header_2" stylesheets="@style.scss" text="Kies een naam" textAlignment="CENTER">
+      <Label id="header-kies-naam" alignment="CENTER" ellipsisString="" layoutX="508.0" layoutY="294.0" prefHeight="27.0" prefWidth="270.0" styleClass="header_2" stylesheets="@style.scss" text="Kies een naam" textAlignment="CENTER">
          <font>
             <Font size="18.0" />
          </font></Label>
       <TextField fx:id="userName" layoutX="509.0" layoutY="340.0" prefHeight="35.0" prefWidth="270.0" />
-      <Button layoutX="509.0" layoutY="390.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="270.0" text="Gaan" textAlignment="CENTER" onAction="#loginUser"/>
+      <Button layoutX="509.0" layoutY="390.0" mnemonicParsing="false" onAction="#loginUser" prefHeight="35.0" prefWidth="270.0" text="Gaan" textAlignment="CENTER" />
       <Label fx:id="loginError" layoutX="509.0" layoutY="440.0" prefHeight="60.0" prefWidth="270.0" styleClass="error" stylesheets="@style.scss" text="Foutmelding" textAlignment="CENTER">
          <font>
             <Font size="18.0" />
