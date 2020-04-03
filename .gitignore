@@ -25,3 +25,7 @@ hs_err_pid*
 # IDEA
 .idea/
 target/
+
+boardgame_bot.iml
+
+pom.xml
