@@ -1,4 +1,4 @@
-package com.github.lutzenh.gui;
+package com.github.verluci.reversi.gui;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;

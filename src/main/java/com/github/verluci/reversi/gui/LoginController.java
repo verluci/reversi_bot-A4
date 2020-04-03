@@ -1,4 +1,4 @@
-package com.github.lutzenh.gui;
+package com.github.verluci.reversi.gui;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
