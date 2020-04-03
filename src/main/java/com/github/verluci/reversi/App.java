@@ -60,7 +60,7 @@ public class App extends Application {
         });
         var infoScene = new Scene(new VBox(label, selectGPUButton, gpuCalculationTest), 640, 480);
 
-        FXMLLoader loader = new FXMLLoader(new File("src/main/resources/login.fxml").toURI().toURL());
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("login.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
