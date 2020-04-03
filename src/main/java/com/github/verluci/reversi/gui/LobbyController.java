@@ -13,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 public class LobbyController extends AnchorPane {
@@ -25,7 +26,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void OrthelloVsAI(ActionEvent actionEvent) throws MalformedURLException {
+    public void OthelloVsAI(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
@@ -34,7 +35,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void OrthelloVsPlayer(ActionEvent actionEvent) throws MalformedURLException {
+    public void OthelloVsPlayer(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
@@ -43,7 +44,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void TickVsPlayer(ActionEvent actionEvent) throws MalformedURLException {
+    public void TickVsPlayer(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
@@ -52,7 +53,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void TickVsAI(ActionEvent actionEvent) throws MalformedURLException {
+    public void TickVsAI(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();

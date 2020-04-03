@@ -21,8 +21,8 @@
             <Font size="24.0" />
          </font>
       </Text>
-      <Button layoutX="551.0" layoutY="235.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="Speel online" onAction="#OrthelloVsPlayer" />
-      <Button layoutX="676.0" layoutY="235.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="VS AI" onAction="#OrthelloVsAI"/>
+      <Button layoutX="551.0" layoutY="235.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="Speel online" onAction="#OthelloVsPlayer" />
+      <Button layoutX="676.0" layoutY="235.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="VS AI" onAction="#OthelloVsAI"/>
       <Text layoutX="563.0" layoutY="335.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_1" text="Boter kaas en eieren" textAlignment="CENTER" wrappingWidth="225.29296875">
          <font>
             <Font size="24.0" />
