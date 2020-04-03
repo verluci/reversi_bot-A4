@@ -26,7 +26,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void OthelloVsAI(ActionEvent actionEvent) throws IOException {
+    public void OthelloVsAI(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
@@ -35,7 +35,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void OthelloVsPlayer(ActionEvent actionEvent) throws IOException {
+    public void OthelloVsPlayer(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
@@ -44,7 +44,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void TickVsPlayer(ActionEvent actionEvent) throws IOException {
+    public void TickVsPlayer(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
@@ -53,7 +53,7 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void TickVsAI(ActionEvent actionEvent) throws IOException {
+    public void TickVsAI(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(new File("src/main/resources/lobby.fxml").toURI().toURL());
         Parent root = loader.load();
