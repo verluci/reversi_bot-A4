@@ -20,6 +20,18 @@ public class TicTacToeGame extends Game {
     }
 
     @Override
+    protected void findValidMoves(Player player) {
+        Tile[][] tiles = board.getTiles();
+
+        for (int y = 0; y < board.getYSize(); y++) {
+            for (int x = 0; x < board.getXSize(); x++) {
+                if(tiles[x][y].getState() != TileState.PLAYER1 && tiles[x][y].getState() != TileState.PLAYER2)
+                    tiles[x][y].setState(TileState.POSSIBLE_MOVE);
+            }
+        }
+    }
+
+    @Override
     public boolean isValidMove(Player player, int x, int y) {
         if(player == Player.UNDEFINED)
             return false;
@@ -64,21 +76,20 @@ public class TicTacToeGame extends Game {
 
     @Override
     protected boolean hasGameEnded() {
-        boolean rowOfThree = false;
         switch (getCurrentPlayer()) {
             case PLAYER1:
-                rowOfThree = checkRowOfThree(TileState.PLAYER1);
-                if(rowOfThree)
+                if(checkRowOfThree(TileState.PLAYER1)) {
                     incrementPlayerScore(Player.PLAYER1);
-                break;
+                    return true;
+                }
             case PLAYER2:
-                rowOfThree = checkRowOfThree(TileState.PLAYER2);
-                if(rowOfThree)
+                if(checkRowOfThree(TileState.PLAYER2)) {
                     incrementPlayerScore(Player.PLAYER2);
-                break;
+                    return true;
+                }
         }
 
-        return rowOfThree;
+        return board.getTilesWithState(TileState.NONE).isEmpty() && board.getTilesWithState(TileState.POSSIBLE_MOVE).isEmpty();
     }
 
     /**
@@ -125,19 +136,13 @@ public class TicTacToeGame extends Game {
         return new ArrayList<>();
     }
 
-
-    @Override
-    public List<Tile> listPossibleMoves(Player player) {
-        return board.getTilesWithState(TileState.NONE);
-    }
-
     // TODO: Remove this entry-point when Unit testing for this game has been implemented.
     /**
      * A temporary entry-point to test TicTacToe games PvP.
      * @param args Unused.
      */
     public static void main(String[] args) {
-        TicTacToeGame game = new TicTacToeGame();
+        Game game = new TicTacToeGame();
 
         game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
             System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);

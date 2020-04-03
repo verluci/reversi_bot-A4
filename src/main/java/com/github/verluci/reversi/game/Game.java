@@ -47,15 +47,60 @@ public abstract class Game {
         this.currentPlayer = Player.UNDEFINED;
     }
 
+    //region Abstract Methods
+
+    /**
+     * This method should set all possible move tiles to the TileState POSSIBLE_MOVE
+     * @param player The player for which the moves are possible.
+     */
+    protected abstract void findValidMoves(Player player);
+
+    /**
+     * This method should return if the given move is possible for the given player on the given position.
+     * @param player The player that wants to make the move.
+     * @param x The horizontal position of the move.
+     * @param y The vertical position of the move.
+     * @return If the move is a valid one.
+     */
     public abstract boolean isValidMove(Player player, int x, int y);
+
+    /**
+     * This method performs the move on a given position for a player.
+     * (This method is fired after the player knows the move is a valid one)
+     * @param player The player that performs the move
+     * @param x The horizontal position of the move.
+     * @param y The vertical position of the move.
+     */
     protected abstract void performMove(Player player, int x, int y);
 
+    /**
+     * This method is used when to board has to be reset, and should be used if you want to give the board any
+     * starting stones.
+     * @return A list of tiles that should appear on a new board.
+     */
     protected abstract List<Tile> getStartingTiles();
-    public abstract List<Tile> listPossibleMoves(Player player);
 
+    /**
+     * This method checks if the game has entered the ending state.
+     * (For example when to board is full, or a player lost all its tiles)
+     * @return If the game has ended.
+     */
     protected abstract boolean hasGameEnded();
+
+    /**
+     * This method calculates the next player given the current player and the board.
+     * @param currentPlayer The current player that has played before the next player.
+     * @return The next player to play.
+     */
     protected abstract Player calculateNextPlayer(Player currentPlayer);
+
+    /**
+     * This method returns which player is currently leading the game.
+     * @return The player that is leading the game.
+     */
     protected abstract Player checkLeadingPlayer();
+
+    //endregion
 
     /**
      * Will try a move if it is possible.
@@ -78,6 +123,9 @@ public abstract class Game {
             else {
                 Player nextPlayer = calculateNextPlayer(player);
                 setCurrentPlayer(nextPlayer);
+
+                clearValidMoves();
+                findValidMoves(nextPlayer);
             }
         } else {
             notifyOnInvalidMove(player, x, y);
@@ -100,6 +148,7 @@ public abstract class Game {
         board.setTiles(getStartingTiles());
 
         currentPlayer = startingPlayer;
+        findValidMoves(startingPlayer);
         notifyOnGameStart(startingPlayer);
     };
 
@@ -111,6 +160,20 @@ public abstract class Game {
         currentGameState = GameState.ENDED;
         currentPlayer = Player.UNDEFINED;
         notifyOnGameEnd(winner);
+    }
+
+    /**
+     * This method clears any tiles with a non-player TileState
+     */
+    private void clearValidMoves(){
+        Tile[][] tiles = board.getTiles();
+
+        for (int y = 0; y < board.getYSize(); y++) {
+            for (int x = 0; x < board.getXSize(); x++) {
+                if(tiles[x][y].getState() != TileState.PLAYER1 && tiles[x][y].getState() != TileState.PLAYER2)
+                    tiles[x][y].setState(TileState.NONE);
+            }
+        }
     }
 
     //region Getters and Setters
