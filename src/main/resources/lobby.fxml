@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.lutzenh.gui.LobbyController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.LobbyController">
    <children>
       <ListView fx:id="currentPlayers" layoutY="53.0" prefHeight="665.0" prefWidth="275.0" />
       <Line endX="275.0" endY="718.0" startX="275.0" />

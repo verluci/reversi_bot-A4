@@ -1,4 +1,4 @@
-package com.github.lutzenh.gpgpu;
+package com.github.verluci.reversi.gpgpu;
 
 import org.jocl.cl_device_id;
 import org.jocl.cl_platform_id;

@@ -1,4 +1,4 @@
-package com.github.lutzenh.gpgpu;
+package com.github.verluci.reversi.gpgpu;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

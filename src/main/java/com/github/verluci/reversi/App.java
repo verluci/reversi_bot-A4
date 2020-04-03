@@ -1,10 +1,10 @@
-package com.github.lutzenh;
+package com.github.verluci.reversi;
 
-import com.github.lutzenh.gpgpu.GPUSelectionBox;
-import com.github.lutzenh.gpgpu.GraphicsDevice;
-import com.github.lutzenh.gpgpu.JOCLSample;
-import com.github.lutzenh.gui.LoginController;
-import com.github.lutzenh.gui.ScreenController;
+import com.github.verluci.reversi.gpgpu.GPUSelectionBox;
+import com.github.verluci.reversi.gpgpu.GraphicsDevice;
+import com.github.verluci.reversi.gpgpu.JOCLSample;
+import com.github.verluci.reversi.gui.LoginController;
+import com.github.verluci.reversi.gui.ScreenController;
 import com.sun.tools.javac.Main;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.lutzenh.gui.LoginController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.LoginController">
    <children>
       <Label id="header-kies-naam" layoutX="581.0" layoutY="294.0" prefHeight="27.0" prefWidth="119.0" styleClass="header_2" stylesheets="@style.scss" text="Kies een naam" textAlignment="CENTER">
          <font>

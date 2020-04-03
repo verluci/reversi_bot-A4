@@ -1,4 +1,4 @@
-package com.github.lutzenh;
+package com.github.verluci.reversi;
 
 public class SystemInfo {
 

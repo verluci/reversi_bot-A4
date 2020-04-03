@@ -5,7 +5,7 @@
  * Copyright 2009-2019 Marco Hutter - http://www.jocl.org/
  */
 
-package com.github.lutzenh.gpgpu;
+package com.github.verluci.reversi.gpgpu;
 
 import static org.jocl.CL.*;
 
