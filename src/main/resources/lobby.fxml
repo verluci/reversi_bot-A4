@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.LobbyController">
+   <children>
+      <ListView fx:id="currentPlayers" layoutY="53.0" prefHeight="665.0" prefWidth="275.0" />
+      <Line endX="275.0" endY="718.0" startX="275.0" />
+      <Text layoutX="8.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_2" text="Beschikbare spelers" wrappingWidth="258.13671875">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="551.0" layoutY="197.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_1" text="Reversi" textAlignment="CENTER" wrappingWidth="225.29296875">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Text>
+      <Button layoutX="551.0" layoutY="235.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="Speel online" onAction="#OthelloVsPlayer" />
+      <Button layoutX="676.0" layoutY="235.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="VS AI" onAction="#OthelloVsAI"/>
+      <Text layoutX="563.0" layoutY="335.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_1" text="Boter kaas en eieren" textAlignment="CENTER" wrappingWidth="225.29296875">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Text>
+      <Button layoutX="551.0" layoutY="368.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="Speel online" onAction="#TickVsPlayer"/>
+      <Button layoutX="676.0" layoutY="368.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="109.0" text="VS AI" onAction="#TickVsAI"/>
+      <Text layoutX="332.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_2" text="Welkom, speler">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+   </children>
+</AnchorPane>
