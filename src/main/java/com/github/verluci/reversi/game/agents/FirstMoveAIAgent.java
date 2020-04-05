@@ -1,20 +1,18 @@
-package com.github.verluci.reversi.game.entities;
+package com.github.verluci.reversi.game.agents;
 
 import com.github.verluci.reversi.game.Game;
 import com.github.verluci.reversi.game.GameBoard;
 import com.github.verluci.reversi.game.Tile;
 import com.github.verluci.reversi.game.TileState;
 
-import java.security.InvalidParameterException;
-
 /**
- * Use this Entity if you want a player to play as a TicTacToe AI.
+ * Use this agent if you want to play against an AI that will always pick the first possible tile.
  */
-public class TicTacToeAIEntity extends AIEntity {
+public class FirstMoveAIAgent extends AIAgent {
     /**
      * The constructor for TicTacToeAIEntity
      */
-    public TicTacToeAIEntity() {
+    public FirstMoveAIAgent() {
         super();
     }
 
@@ -34,9 +32,6 @@ public class TicTacToeAIEntity extends AIEntity {
      */
     @Override
     public void setGame(Game game) {
-        if(!game.getName().equals("Tic-tac-toe"))
-            throw new InvalidParameterException("This AI Entity only works on 'Tic-tac-toe'!");
-
         super.setGame(game);
     }
 }

@@ -1,24 +1,24 @@
 package com.github.verluci.reversi.game;
 
 import com.github.verluci.reversi.game.Game.*;
-import com.github.verluci.reversi.game.entities.Entity;
-import com.github.verluci.reversi.game.entities.LocalPlayerEntity;
-import com.github.verluci.reversi.game.entities.TicTacToeAIEntity;
+import com.github.verluci.reversi.game.agents.Agent;
+import com.github.verluci.reversi.game.agents.LocalPlayerAgent;
+import com.github.verluci.reversi.game.agents.FirstMoveAIAgent;
 
 import java.security.InvalidParameterException;
 
 public class SessionInitializer {
     private Game game;
-    private Entity player1;
-    private Entity player2;
+    private Agent player1;
+    private Agent player2;
 
     /**
      * Constructor for SessionInitializer
-     * @param player1 An Entity that is player1 in this game.
-     * @param player2 An Entity that is player2 in this game.
+     * @param player1 An Agent that is player1 in this game.
+     * @param player2 An Agent that is player2 in this game.
      * @param gameType The class-definition of the game that is going to be played.
      */
-    public SessionInitializer(Entity player1, Entity player2, Class<?> gameType) {
+    public SessionInitializer(Agent player1, Agent player2, Class<?> gameType) {
         this.player1 = player1;
         this.player2 = player2;
         this.game = GameFactory.createGame((Class<Game>) gameType);
@@ -34,7 +34,7 @@ public class SessionInitializer {
      * Start the session in which players are playing a Game.
      * @param startingPlayer The player that is allowed to make the first move.
      */
-    public void start(Entity startingPlayer) {
+    public void start(Agent startingPlayer) {
         if(startingPlayer == player1 || startingPlayer == player2)
             game.startGame(startingPlayer.getPlayer());
         else
@@ -65,8 +65,8 @@ public class SessionInitializer {
      * @param args Unused.
      */
     public static void main(String[] args) {
-        Entity player1 = new LocalPlayerEntity();
-        Entity player2 = new TicTacToeAIEntity();
+        Agent player1 = new LocalPlayerAgent();
+        Agent player2 = new FirstMoveAIAgent();
 
         SessionInitializer newSession = new SessionInitializer(
                 player1,

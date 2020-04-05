@@ -1,17 +1,17 @@
-package com.github.verluci.reversi.game.entities;
+package com.github.verluci.reversi.game.agents;
 
 import com.github.verluci.reversi.game.GameBoard;
 import com.github.verluci.reversi.game.Tile;
 
 /**
- * Implement this method when you want to create an AIEntity
- * This class contains some default methods an AIEntity should have.
+ * Implement this method when you want to create an AIAgent
+ * This class contains some default methods an AIAgent should have.
  */
-public abstract class AIEntity extends Entity {
+public abstract class AIAgent extends Agent {
     /**
-     * The constructor for AIEntity
+     * The constructor for AIAgent
      */
-    public AIEntity() {
+    public AIAgent() {
         super();
     }
 

@@ -1,19 +1,19 @@
-package com.github.verluci.reversi.game.entities;
+package com.github.verluci.reversi.game.agents;
 
 import com.github.verluci.reversi.game.Game;
 import com.github.verluci.reversi.game.Game.*;
 
 /**
- * Implement this class if you want to create a new entity that can play a game.
+ * Implement this class if you want to create a new agent that can play a game.
  */
-public abstract class Entity {
+public abstract class Agent {
     protected Game game;
     protected Player player;
 
     /**
-     * Constructor for Entity
+     * Constructor for Agent
      */
-    public Entity() { }
+    public Agent() { }
 
     // TODO: Change the abstraction a little bit so that the user chooses a tile instead.
     /**
@@ -46,23 +46,23 @@ public abstract class Entity {
     }
 
     /**
-     * sets the game this entity is playing in.
-     * @param game The game this entity should play in.
+     * sets the game this agent is playing in.
+     * @param game The game this agent should play in.
      */
     public void setGame(Game game) {
         this.game = game;
     }
 
     /**
-     * Sets the Player the Entity is in a game.
-     * @param player The player the entity plays in a game.
+     * Sets the Player the agent is in a game.
+     * @param player The player the agent plays in a game.
      */
     public void setPlayer(Player player) {
         this.player = player;
     }
 
     /**
-     * @return The Player this Entity is playing.
+     * @return The Player this agent is playing.
      */
     public Player getPlayer() {
         return player;
