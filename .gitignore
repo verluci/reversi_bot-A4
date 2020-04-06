@@ -27,5 +27,3 @@ hs_err_pid*
 target/
 *.iml
 
-#pom
-pom.xml
