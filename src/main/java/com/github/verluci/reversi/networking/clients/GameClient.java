@@ -32,55 +32,55 @@ public abstract class GameClient {
      * @param port The port of this server. (usually 7789)
      * @throws ConnectionException Thrown when a connection to the server fails.
      */
-    abstract void connect(String hostname, int port) throws ConnectionException;
+    public abstract void connect(String hostname, int port) throws ConnectionException;
 
     /**
      * Disconnects you from the server.
      * @throws ConnectionException Thrown when disconnecting from the server fails.
      */
-    abstract void disconnect() throws ConnectionException;
+    public abstract void disconnect() throws ConnectionException;
 
     /**
      * @return True if you are currently connected to the server.
      */
-    abstract boolean getConnected();
+    public abstract boolean getConnected();
 
     /**
      * Use this method if you want to login to the server with a certain username.
      * @param username the unique username you want to use to connect to the server.
      * @throws LoginException Thrown when the username already exists or if the command has failed.
      */
-    abstract void login(String username) throws LoginException;
+    public abstract void login(String username) throws LoginException;
 
     /**
      * Use this command if you want to logout.
      * @throws LoginException Thrown when logging out somehow fails.
      */
-    abstract void logout() throws LoginException;
+    public abstract void logout() throws LoginException;
 
     /**
      * Retrieves a list of games that the server supports.
      * @return A String[] array of games that the server supports.
      */
-    abstract String[] getGameList();
+    public abstract String[] getGameList();
 
     /**
      * Retrieves all the players that are currently online.
      * @return A list of players that are online.
      */
-    abstract Player[] getPlayerList();
+    public abstract Player[] getPlayerList();
 
     /**
      * @return A list of challenges against you.
      */
-    abstract Challenge[] getChallenges();
+    public abstract Challenge[] getChallenges();
 
     /**
      * Use this method if you want to subscribe to a game inorder to auto-join a match.
      * @param gameName The name of the game you want to subscribe to.
      * @throws SubscribeException Thrown when the response is has failed.
      */
-    abstract void subscribeToGame(String gameName) throws SubscribeException;
+    public abstract void subscribeToGame(String gameName) throws SubscribeException;
 
     /**
      * Use this method if you want to challenge a player to a match.
@@ -88,27 +88,27 @@ public abstract class GameClient {
      * @param gameName The name of the game you want to play with the challenged player.
      * @throws ChallengePlayerException Thrown when challenging a player fails because of invalid Player-name or Game-name.
      */
-    abstract void challengePlayer(Player player, String gameName) throws ChallengePlayerException;
+    public abstract void challengePlayer(Player player, String gameName) throws ChallengePlayerException;
 
     /**
      * Use this method when you want to accept a given challenge.
      * @param challenge The challenge that should be accepted.
      * @throws ChallengePlayerException Thrown when accepting a challenge fails.
      */
-    abstract void acceptChallenge(Challenge challenge) throws ChallengePlayerException;
+    public abstract void acceptChallenge(Challenge challenge) throws ChallengePlayerException;
 
     /**
      * Performs a move on the given position. beware! will return OK on illegal moves!
      * @param position The position the move should be performed on.
      * @throws MoveException Thrown when a move fails because of invalid syntax (not because of illegal moves).
      */
-    abstract void performMove(int position) throws MoveException;
+    public abstract void performMove(int position) throws MoveException;
 
     /**
      * Use this method when you want to give up during a match.
      * @throws MoveException Thrown when the response has failed.
      */
-    abstract void forfeit() throws MoveException;
+    public abstract void forfeit() throws MoveException;
 
     //endregion
 

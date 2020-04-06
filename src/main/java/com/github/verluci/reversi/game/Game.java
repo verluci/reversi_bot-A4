@@ -142,7 +142,7 @@ public abstract class Game {
      * Use this method if you want to start the game.
      * @param startingPlayer The player that should go first.
      */
-    public void startGame(Player startingPlayer) {
+    public synchronized void startGame(Player startingPlayer) {
         if(currentGameState == GameState.RUNNING)
             throw new IllegalArgumentException("The game is already running!");
         else
@@ -160,10 +160,12 @@ public abstract class Game {
      * Use this method if you want to stop the game.
      * @param winner The player that should be announced winner when the game is stopped.
      */
-    public void stopGame(Player winner) {
-        currentGameState = GameState.ENDED;
-        currentPlayer = Player.UNDEFINED;
-        notifyOnGameEnd(winner);
+    public synchronized void stopGame(Player winner) {
+        if(currentGameState != GameState.ENDED) {
+            currentGameState = GameState.ENDED;
+            currentPlayer = Player.UNDEFINED;
+            notifyOnGameEnd(winner);
+        }
     }
 
     /**
@@ -223,8 +225,13 @@ public abstract class Game {
      * @param currentPlayer The player that should have the turn.
      */
     public void setCurrentPlayer(Player currentPlayer) {
-        this.currentPlayer = currentPlayer;
-        notifyOnNextPlayer(currentPlayer);
+        if(this.currentPlayer != currentPlayer) {
+            this.currentPlayer = currentPlayer;
+
+            notifyOnNextPlayer(currentPlayer);
+            clearValidMoves();
+            findValidMoves(this.currentPlayer);
+        }
     }
 
     /**
