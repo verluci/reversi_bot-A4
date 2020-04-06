@@ -1,24 +1,28 @@
 package com.github.verluci.reversi.game;
 
 import com.github.verluci.reversi.game.Game.*;
-import com.github.verluci.reversi.game.entities.Entity;
-import com.github.verluci.reversi.game.entities.LocalPlayerEntity;
-import com.github.verluci.reversi.game.entities.TicTacToeAIEntity;
+import com.github.verluci.reversi.game.agents.Agent;
+import com.github.verluci.reversi.game.agents.LocalPlayerAgent;
+import com.github.verluci.reversi.game.agents.NetworkAgent;
+import com.github.verluci.reversi.networking.GameClientExceptions;
+import com.github.verluci.reversi.networking.clients.GameClient;
+import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 
 import java.security.InvalidParameterException;
+import java.util.Random;
 
 public class SessionInitializer {
     private Game game;
-    private Entity player1;
-    private Entity player2;
+    private Agent player1;
+    private Agent player2;
 
     /**
      * Constructor for SessionInitializer
-     * @param player1 An Entity that is player1 in this game.
-     * @param player2 An Entity that is player2 in this game.
+     * @param player1 An Agent that is player1 in this game.
+     * @param player2 An Agent that is player2 in this game.
      * @param gameType The class-definition of the game that is going to be played.
      */
-    public SessionInitializer(Entity player1, Entity player2, Class<?> gameType) {
+    public SessionInitializer(Agent player1, Agent player2, Class<?> gameType) {
         this.player1 = player1;
         this.player2 = player2;
         this.game = GameFactory.createGame((Class<Game>) gameType);
@@ -34,7 +38,7 @@ public class SessionInitializer {
      * Start the session in which players are playing a Game.
      * @param startingPlayer The player that is allowed to make the first move.
      */
-    public void start(Entity startingPlayer) {
+    public void start(Agent startingPlayer) {
         if(startingPlayer == player1 || startingPlayer == player2)
             game.startGame(startingPlayer.getPlayer());
         else
@@ -64,41 +68,60 @@ public class SessionInitializer {
      * A temporary entry-point to test SessionInitializer using TicTacToe.
      * @param args Unused.
      */
-    public static void main(String[] args) {
-        Entity player1 = new LocalPlayerEntity();
-        Entity player2 = new TicTacToeAIEntity();
+    public static void main(String[] args) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException, GameClientExceptions.SubscribeException {
+        GameClient gameClient = new TelnetGameClient();
+        gameClient.connect("localhost", 7789);
+        String username = "player-" + new Random().nextInt(5000);
+        com.github.verluci.reversi.networking.types.Player localPlayer = new com.github.verluci.reversi.networking.types.Player(username);
+        gameClient.login(username);
+        gameClient.subscribeToGame("Tic-tac-toe");
+
+        Agent player1 = new LocalPlayerAgent();
+        Agent player2 = new NetworkAgent(gameClient, localPlayer);
 
         SessionInitializer newSession = new SessionInitializer(
                 player1,
                 player2,
                 TicTacToeGame.class);
 
-        Game game = newSession.getGame();
-
-        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
-            System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);
+        final com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
+        Thread sessionThread = new Thread(() -> {
+            if(startingPlayer[0].equals(localPlayer))
+                newSession.start(player1);
+            else
+                newSession.start(player2);
         });
 
-        game.onGameStart(startingPlayer -> {
-            System.out.println("Game has started: startingPlayer=" + startingPlayer);
+        gameClient.onGameStart(listener -> {
+            Game game = newSession.getGame();
 
-            System.out.println("\n" + game.getBoard().toString() + "\n");
-            System.out.println("Next Player=" + game.getCurrentPlayer() + "\n");
+            game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
+                System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);
+            });
+
+            game.onGameStart(player -> {
+                System.out.println("Game has started: startingPlayer=" + player);
+            });
+
+            game.onMove((mover, xPosition, yPosition) -> {
+                System.out.println("Move=" + mover + " - " + xPosition + ", " + yPosition);
+            });
+
+            game.onInvalidMove((mover, xPosition, yPosition) -> {
+                System.out.println("Invalid Move=" + mover + " - " + xPosition + ", " + yPosition);
+            });
+
+            game.onNextPlayer(player -> {
+                System.out.println("\n" + game.getBoard().toString() + "\n");
+                System.out.println("Next Player=" + player + "\n");
+            });
+
+            startingPlayer[0] = listener.getStartingPlayer();
+            sessionThread.start();
         });
 
-        game.onMove((mover, xPosition, yPosition) -> {
-            System.out.println("Move=" + mover + " - " + xPosition + ", " + yPosition);
+        gameClient.onGameEnd(listener -> {
+            sessionThread.interrupt();
         });
-
-        game.onInvalidMove((mover, xPosition, yPosition) -> {
-            System.out.println("Invalid Move=" + mover + " - " + xPosition + ", " + yPosition);
-        });
-
-        game.onNextPlayer(player -> {
-            System.out.println("\n" + game.getBoard().toString() + "\n");
-            System.out.println("Next Player=" + player + "\n");
-        });
-
-        newSession.start(player1);
     }
 }

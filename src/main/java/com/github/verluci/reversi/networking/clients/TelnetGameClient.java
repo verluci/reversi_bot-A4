@@ -20,8 +20,8 @@ public class TelnetGameClient extends GameClient {
     private boolean isConnected;
 
     private BlockingQueue<String> returnQueue;
-    private Runnable returnedInfo;
-    private Runnable processQueue;
+    private Thread returnedInfo;
+    private Thread processQueue;
 
     private volatile Player[] playerList;
     private volatile String[] gameList;
@@ -38,7 +38,7 @@ public class TelnetGameClient extends GameClient {
         returnQueue = new SynchronousQueue<>();
         activeChallenges = new ConcurrentHashMap<>();
 
-        returnedInfo = () -> {
+        returnedInfo = new Thread(() -> {
             try {
                 StringBuilder stringBuilder = new StringBuilder();
                 while (isConnected) {
@@ -46,6 +46,7 @@ public class TelnetGameClient extends GameClient {
 
                     if(currentChar == '\n') {
                         String constructedString = stringBuilder.toString();
+
                         returnQueue.put(constructedString);
                         stringBuilder.setLength(0);
                     } else {
@@ -53,20 +54,20 @@ public class TelnetGameClient extends GameClient {
                     }
                 }
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Interrupt: Stopped reading the incoming information.");
             }
-        };
+        });
 
-        processQueue  = () -> {
+        processQueue  = new Thread(() -> {
             while (isConnected) {
                 try {
                     String string = returnQueue.take();
                     processQueuedString(string);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.out.println("Interrupt: Stopped processing incoming information.");
                 }
             }
-        };
+        });
     }
 
     public void processQueuedString(String string) {
@@ -216,8 +217,8 @@ public class TelnetGameClient extends GameClient {
                 in = new DataInputStream(telnet.getInputStream());
 
                 isConnected = true;
-                new Thread(returnedInfo).start();
-                new Thread(processQueue).start();
+                returnedInfo.start();
+                processQueue.start();
             }
         } catch (IOException e) {
             throw new ConnectionException("Failed to connect to server: " + hostname + ":" + port);
@@ -232,8 +233,10 @@ public class TelnetGameClient extends GameClient {
     public void disconnect() throws ConnectionException {
         try {
             isConnected = false;
-            out.close();
-            in.close();
+            processQueue.interrupt();
+            returnedInfo.interrupt();
+
+            telnet.disconnect();
         } catch (IOException e) {
             throw new ConnectionException("Failed to disconnect from the server!");
         }

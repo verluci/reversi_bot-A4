@@ -25,6 +25,5 @@ hs_err_pid*
 # IDEA
 .idea/
 target/
+*.iml
 
-#pom
-pom.xml
