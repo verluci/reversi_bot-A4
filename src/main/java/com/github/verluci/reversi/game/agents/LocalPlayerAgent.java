@@ -1,15 +1,15 @@
-package com.github.verluci.reversi.game.entities;
+package com.github.verluci.reversi.game.agents;
 
 import java.util.Scanner;
 
 /**
- * Use this entity if you want to play as a local-player using the cli-scanner.
+ * Use this agent if you want to play as a local-player using the cli-scanner.
  */
-public class LocalPlayerEntity extends Entity{
+public class LocalPlayerAgent extends Agent {
     /**
-     * The constructor for LocalPlayerEntity
+     * The constructor for LocalPlayerAgent
      */
-    public LocalPlayerEntity() {
+    public LocalPlayerAgent() {
         super();
     }
 
