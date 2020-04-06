@@ -68,6 +68,13 @@ public class Tile {
         this.state = state;
     }
 
+    /**
+     * @return True if there is not a player on this tile.
+     */
+    public boolean isEmpty() {
+        return (state == TileState.NONE || state == TileState.POSSIBLE_MOVE);
+    }
+
     //endregion
 
     /**

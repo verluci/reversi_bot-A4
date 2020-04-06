@@ -1,13 +1,12 @@
 package com.github.verluci.reversi.game;
 
 import com.github.verluci.reversi.game.Game.*;
-import com.github.verluci.reversi.game.agents.Agent;
-import com.github.verluci.reversi.game.agents.LocalPlayerAgent;
-import com.github.verluci.reversi.game.agents.NetworkAgent;
+import com.github.verluci.reversi.game.agents.*;
 import com.github.verluci.reversi.networking.GameClientExceptions;
 import com.github.verluci.reversi.networking.clients.GameClient;
 import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Random;
 
@@ -74,54 +73,43 @@ public class SessionInitializer {
         String username = "player-" + new Random().nextInt(5000);
         com.github.verluci.reversi.networking.types.Player localPlayer = new com.github.verluci.reversi.networking.types.Player(username);
         gameClient.login(username);
-        gameClient.subscribeToGame("Tic-tac-toe");
-
-        Agent player1 = new LocalPlayerAgent();
-        Agent player2 = new NetworkAgent(gameClient, localPlayer);
-
-        SessionInitializer newSession = new SessionInitializer(
-                player1,
-                player2,
-                TicTacToeGame.class);
-
-        final com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
-        Thread sessionThread = new Thread(() -> {
-            if(startingPlayer[0].equals(localPlayer))
-                newSession.start(player1);
-            else
-                newSession.start(player2);
-        });
+        gameClient.subscribeToGame("Reversi");
 
         gameClient.onGameStart(listener -> {
+            Agent player1 = new RandomMoveAIAgent();
+            Agent player2 = new NetworkAgent(gameClient, localPlayer);
+
+            SessionInitializer newSession = null;
+
+            if(listener.getStartingPlayer().getName().equals(username))
+                newSession = new SessionInitializer(
+                        player1,
+                        player2,
+                        OthelloGame.class);
+            else
+                newSession = new SessionInitializer(
+                        player2,
+                        player1,
+                        OthelloGame.class);
+
+            final com.github.verluci.reversi.networking.types.Player[] startingPlayer = { null };
+            SessionInitializer finalNewSession = newSession;
+            Thread sessionThread = new Thread(() -> {
+                if(startingPlayer[0].equals(localPlayer))
+                    finalNewSession.start(player1);
+                else
+                    finalNewSession.start(player2);
+            });
+
             Game game = newSession.getGame();
 
             game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
                 System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);
-            });
-
-            game.onGameStart(player -> {
-                System.out.println("Game has started: startingPlayer=" + player);
-            });
-
-            game.onMove((mover, xPosition, yPosition) -> {
-                System.out.println("Move=" + mover + " - " + xPosition + ", " + yPosition);
-            });
-
-            game.onInvalidMove((mover, xPosition, yPosition) -> {
-                System.out.println("Invalid Move=" + mover + " - " + xPosition + ", " + yPosition);
-            });
-
-            game.onNextPlayer(player -> {
                 System.out.println("\n" + game.getBoard().toString() + "\n");
-                System.out.println("Next Player=" + player + "\n");
             });
 
             startingPlayer[0] = listener.getStartingPlayer();
             sessionThread.start();
-        });
-
-        gameClient.onGameEnd(listener -> {
-            sessionThread.interrupt();
         });
     }
 }

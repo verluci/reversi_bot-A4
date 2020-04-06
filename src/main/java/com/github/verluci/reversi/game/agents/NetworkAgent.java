@@ -81,8 +81,6 @@ public class NetworkAgent extends Agent {
         });
 
         gameClient.onTurn(listener -> {
-            game.setCurrentPlayer(player == Game.Player.PLAYER1 ? Game.Player.PLAYER2 : Game.Player.PLAYER1);
-
             synchronized (this) {
                 notify();
             }
