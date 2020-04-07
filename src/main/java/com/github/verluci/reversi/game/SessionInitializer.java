@@ -111,5 +111,13 @@ public class SessionInitializer {
             startingPlayer[0] = listener.getStartingPlayer();
             sessionThread.start();
         });
+
+        gameClient.onGameEnd(listener -> {
+            try {
+                gameClient.disconnect();
+            } catch (GameClientExceptions.ConnectionException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

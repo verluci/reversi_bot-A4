@@ -12,6 +12,7 @@ import com.github.verluci.reversi.networking.types.Player;
 public class NetworkAgent extends Agent {
     private GameClient gameClient;
     private Player localPlayer;
+    private volatile boolean isLocalPlayerTurn = false;
 
     /**
      * Constructor for NetworkAgent
@@ -82,17 +83,23 @@ public class NetworkAgent extends Agent {
 
         gameClient.onTurn(listener -> {
             synchronized (this) {
+                isLocalPlayerTurn = true;
                 notify();
             }
         });
 
         game.onMove((mover, xPosition, yPosition) -> {
-            try {
-                if(mover != player)
-                    gameClient.performMove(xPosition + (yPosition * game.getBoard().getXSize()));
+            if(mover != player) {
+                while (!isLocalPlayerTurn)
+                    Thread.onSpinWait();
 
-            } catch (GameClientExceptions.MoveException e) {
-                e.printStackTrace();
+                isLocalPlayerTurn = false;
+
+                try {
+                    gameClient.performMove(xPosition + (yPosition * game.getBoard().getXSize()));
+                } catch (GameClientExceptions.MoveException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

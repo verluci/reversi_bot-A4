@@ -109,7 +109,7 @@ public abstract class Game {
      * @param y The vertical position of the tile the move is placed on.
      * @return If the move has been performed successful.
      */
-    public boolean tryMove(Player player, int x, int y) {
+    public synchronized boolean tryMove(Player player, int x, int y) {
         if(player.equals(currentPlayer)) {
             boolean isValidMove = isValidMove(player, x, y);
 
@@ -141,6 +141,7 @@ public abstract class Game {
             }
         }
 
+        System.err.println("It is not " + player.name() + "'s turn!");
         return false;
     }
 
@@ -232,9 +233,6 @@ public abstract class Game {
      */
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
-        clearValidMoves();
-        findValidMoves(currentPlayer);
-        notifyOnNextPlayer(currentPlayer);
     }
 
     /**
