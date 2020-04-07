@@ -109,24 +109,30 @@ public abstract class Game {
      * @param y The vertical position of the tile the move is placed on.
      * @return If the move has been performed successful.
      */
-    public boolean tryMove(Player player, int x, int y) {
+    public synchronized boolean tryMove(Player player, int x, int y) {
         if(player.equals(currentPlayer)) {
             boolean isValidMove = isValidMove(player, x, y);
 
             if(isValidMove) {
                 performMove(player, x, y);
+
+                clearValidMoves();
                 notifyOnMove(player, x, y);
+                Player nextPlayer = calculateNextPlayer(player);
+
+                if(nextPlayer == Player.UNDEFINED) {
+                    stopGame(checkLeadingPlayer());
+                    return true;
+                }
+
+                findValidMoves(nextPlayer);
 
                 if(hasGameEnded()) {
                     Player leadingPlayer = checkLeadingPlayer();
                     stopGame(leadingPlayer);
                 }
                 else {
-                    Player nextPlayer = calculateNextPlayer(player);
                     setCurrentPlayer(nextPlayer);
-
-                    clearValidMoves();
-                    findValidMoves(nextPlayer);
                 }
 
                 return true;
@@ -135,6 +141,7 @@ public abstract class Game {
             }
         }
 
+        System.err.println("It is not " + player.name() + "'s turn!");
         return false;
     }
 
@@ -176,7 +183,7 @@ public abstract class Game {
 
         for (int y = 0; y < board.getYSize(); y++) {
             for (int x = 0; x < board.getXSize(); x++) {
-                if(tiles[x][y].getState() != TileState.PLAYER1 && tiles[x][y].getState() != TileState.PLAYER2)
+                if(tiles[x][y].isEmpty())
                     tiles[x][y].setState(TileState.NONE);
             }
         }
@@ -225,13 +232,7 @@ public abstract class Game {
      * @param currentPlayer The player that should have the turn.
      */
     public void setCurrentPlayer(Player currentPlayer) {
-        if(this.currentPlayer != currentPlayer) {
-            this.currentPlayer = currentPlayer;
-
-            notifyOnNextPlayer(currentPlayer);
-            clearValidMoves();
-            findValidMoves(this.currentPlayer);
-        }
+        this.currentPlayer = currentPlayer;
     }
 
     /**
@@ -376,6 +377,55 @@ public abstract class Game {
         for (TurnListener listener : turnListeners) {
             listener.onNextPlayer(player);
         }
+    }
+
+    //endregion
+
+    //region Static Helper Methods
+
+    /**
+     * @param player The player you want to get the opposing player's matching TileState from.
+     * @return the opposing player's TileState.
+     */
+    protected static TileState getInvertedTileStateUsingPlayer(Player player) {
+        switch (player) {
+            case PLAYER1:
+                return TileState.PLAYER2;
+            case PLAYER2:
+                return TileState.PLAYER1;
+            default:
+                throw new IllegalArgumentException("Only a player can be inverted!");
+        }
+    }
+
+    /**
+     * @param player The player the matching TileState should be retrieved from.
+     * @return the player's TileState.
+     */
+    protected static TileState getTileStateUsingPlayer(Player player) {
+        switch (player) {
+            case PLAYER1:
+                return TileState.PLAYER1;
+            case PLAYER2:
+                return TileState.PLAYER2;
+            default:
+                throw new IllegalArgumentException("Only a player can fetch its tile-state!");
+        }
+    }
+
+    /**
+     * @param player The player you want to get the opposite player for.
+     * @return The opposite player of the given player.
+     */
+    protected static Player getOppositePlayer(Player player) {
+        switch (player) {
+            case PLAYER1:
+                return Player.PLAYER2;
+            case PLAYER2:
+                return Player.PLAYER1;
+        }
+
+        throw new IllegalArgumentException("UNDINGEST not allowed");
     }
 
     //endregion

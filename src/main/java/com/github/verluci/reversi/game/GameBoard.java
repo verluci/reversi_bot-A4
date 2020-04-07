@@ -93,6 +93,23 @@ public class GameBoard {
     }
 
     /**
+     * @param state The type of tile you want to get the amount from.
+     * @return The amount of this type of tile on the board.
+     */
+    public int countTilesWithState(TileState state) {
+        int counter = 0;
+
+        for (int y = 0; y < ySize; y++) {
+            for (int x = 0; x < xSize; x++) {
+                if(tiles[x][y].getState() == state)
+                    counter++;
+            }
+        }
+
+        return counter;
+    }
+
+    /**
      * Change a list of tiles on the board with the specified tiles.
      * @param tileList A list of tiles that should replace tiles with the same position on the board.
      */
