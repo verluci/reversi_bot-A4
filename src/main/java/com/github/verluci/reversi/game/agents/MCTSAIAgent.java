@@ -2,11 +2,13 @@ package com.github.verluci.reversi.game.agents;
 
 import com.github.verluci.reversi.game.GameBoard;
 import com.github.verluci.reversi.game.Tile;
+import com.github.verluci.reversi.gpgpu.GraphicsDevice;
 import com.github.verluci.reversi.gpgpu.JOCLSample;
 import org.jocl.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,16 +145,19 @@ public class MCTSAIAgent extends AIAgent {
         return null;
     }
 
-    private static int getOptimalMoveUsingOpenCL(cl_device_id device, cl_platform_id platform) {
+    private static int getOptimalMoveUsingOpenCL(GraphicsDevice graphicsDevice, long player, long opponent) {
+        var platform = graphicsDevice.getPlatform_id();
+        var device = graphicsDevice.getId();
+
         int NUMBER_OF_TRIES = 100*1024;
         int NUMBER_OF_TILES = 64;
         int NUMBER_OF_THREADS = NUMBER_OF_TRIES * 4; // Thread Factor, Amount, Number of possible moves.
-        int NUMBER_OF_RANDOM_NUMBERS = NUMBER_OF_THREADS * 128;
+        int NUMBER_OF_RANDOM_NUMBERS = NUMBER_OF_THREADS * 64;
 
         // The first player in this array should always be the starting player
         long[] players = {
-            Long.parseLong("0000000000000000000000000001000000001000000000000000000000000000", 2),
-            Long.parseLong("0000000000000000000000000000100000010000000000000000000000000000", 2)
+                player,
+                opponent
         };
 
         long[] playerResult = new long[2];
@@ -270,10 +275,9 @@ public class MCTSAIAgent extends AIAgent {
         clReleaseCommandQueue(commandQueue);
         clReleaseContext(context);
 
-        System.out.println(resultArray[0]);
-
-        System.out.println(Long.toBinaryString(playerResult[0]));
-        System.out.println(Long.toBinaryString(playerResult[1]));
+        System.out.println("Winner: " + resultArray[0]);
+        GameBoard board = GameBoard.createGameBoardUsingLongValues(playerResult[0], playerResult[1]);
+        System.out.println(board.toString());
 
         ExecutionStatistics executionStatistics = new ExecutionStatistics();
         executionStatistics.addEntry("mctsKernel", work_event);
@@ -283,11 +287,14 @@ public class MCTSAIAgent extends AIAgent {
     }
 
     public static void main(String[] args) {
+        long player = new BigInteger(     "0001000100000010110011000100010000100000001001000010001000100001", 2).longValue();
+        long opponent = new BigInteger(   "0000000000111000001100000001100000011100000100000001000000000000", 2).longValue();
+
         var devices = JOCLSample.getGraphicsDevices();
         var chosenDevice = devices.get(0);
 
         System.out.println(chosenDevice.getName());
 
-        int move = getOptimalMoveUsingOpenCL(chosenDevice.getId(), chosenDevice.getPlatform_id());
+        int move = getOptimalMoveUsingOpenCL(chosenDevice, player, opponent);
     }
 }

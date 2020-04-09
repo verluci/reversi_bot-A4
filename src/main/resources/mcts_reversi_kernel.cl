@@ -143,19 +143,6 @@ void pass_turn(unsigned long players[])
   *player = tmp;*/
 }
 
-bool has_game_ended(unsigned long players[])
-{
-    // Check if there are any moves available for the current player.
-    if (valid_move_available(players[0], players[1]))
-        return false;
-
-    // Check if there are any moves available for the opposing player.
-    if (valid_move_available(players[1], players[0]))
-        return false;
-
-    return true;
-}
-
 unsigned long get_flip_mask(int cell, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
 {
     unsigned long result = 0ULL;
@@ -238,17 +225,23 @@ int evaluate_board(__private unsigned long players[], __global const unsigned in
     int result_multiplier = 1;
 
     int correct_moves[64];
-    for (int i = 0; !has_game_ended(players); i++) {
+    int no_move_available_counter = 0;
+    for (int i = 0; i < 64; i++) {
+        if(no_move_available_counter > 1)
+            break;
+
         if (!valid_move_available(players[0], players[1])) {
             pass_turn(players);
+            no_move_available_counter++;
         } else {
+            no_move_available_counter = 0;
             unsigned int idx = 0;
             for (int j = 0; j < 64; j++) {
                 if (is_correct_move(j, players[0], players[1]))
                     correct_moves[idx++] = j;
             }
 
-            __private unsigned int element_number = random_numbers[global_id + i] % idx;
+            __private unsigned int element_number = random_numbers[global_id * 64 + i] % idx;
             make_move(correct_moves[element_number], players);
         }
 
