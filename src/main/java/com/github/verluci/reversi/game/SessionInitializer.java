@@ -2,11 +2,11 @@ package com.github.verluci.reversi.game;
 
 import com.github.verluci.reversi.game.Game.*;
 import com.github.verluci.reversi.game.agents.*;
+import com.github.verluci.reversi.gpgpu.JOCLSample;
 import com.github.verluci.reversi.networking.GameClientExceptions;
 import com.github.verluci.reversi.networking.clients.GameClient;
 import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 
-import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Random;
 
@@ -46,9 +46,11 @@ public class SessionInitializer {
         while (game.getCurrentGameState() == Game.GameState.RUNNING) {
             switch (game.getCurrentPlayer()) {
                 case PLAYER1:
+                    System.out.println("NEXT PLAYER IS " + game.getCurrentPlayer());
                     player1.performNextMove();
                     break;
                 case PLAYER2:
+                    System.out.println("NEXT PLAYER IS " + game.getCurrentPlayer());
                     player2.performNextMove();
                     break;
             }
@@ -68,19 +70,61 @@ public class SessionInitializer {
      * @param args Unused.
      */
     public static void main(String[] args) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException, GameClientExceptions.SubscribeException {
-        GameClient gameClient = new TelnetGameClient();
+        var devices = JOCLSample.getGraphicsDevices();
+        var chosenDevice = devices.get(0);
+
+        /*GameClient gameClient = new TelnetGameClient();
         gameClient.connect("localhost", 7789);
         String username = "player-" + new Random().nextInt(5000);
         com.github.verluci.reversi.networking.types.Player localPlayer = new com.github.verluci.reversi.networking.types.Player(username);
         gameClient.login(username);
-        gameClient.subscribeToGame("Reversi");
+        gameClient.subscribeToGame("Reversi");*/
 
-        gameClient.onGameStart(listener -> {
+        Agent player1 = new RandomMoveAIAgent();
+        Agent player2 = new MCTSAIAgent(chosenDevice);
+
+        SessionInitializer newSession = null;
+
+        if(new Random().nextInt(2) == 1)
+            newSession = new SessionInitializer(
+                    player1,
+                    player2,
+                    OthelloGame.class);
+        else
+            newSession = new SessionInitializer(
+                    player2,
+                    player1,
+                    OthelloGame.class);
+
+        final com.github.verluci.reversi.networking.types.Player[] startingPlayer = { null };
+        SessionInitializer finalNewSession = newSession;
+        Thread sessionThread = new Thread(() -> {
+            finalNewSession.start(player1);
+        });
+
+        Game game = newSession.getGame();
+
+        game.onMove((mover, xPosition, yPosition) -> {
+            System.out.println("MOVE PERFORMED: " + mover.getClass().getSimpleName() + " " + xPosition + "," + yPosition);
+            System.out.println(game.board.toString());
+        });
+
+        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
+            System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);
+            System.out.println("\n" + game.getBoard().toString() + "\n");
+        });
+
+        sessionThread.start();
+
+        /*gameClient.onGameStart(listener -> {
             Agent player1 = new RandomMoveAIAgent();
+            //Agent player1 = new MCTSAIAgent(chosenDevice);
             Agent player2 = new NetworkAgent(gameClient, localPlayer);
 
             SessionInitializer newSession = null;
 
+            System.out.println("Starting player is " + listener.getStartingPlayer().getName());
+            System.out.println("Our AIAgent is " + (listener.getStartingPlayer().getName().equals(username) ? "PLAYER1" : "PLAYER2"));
             if(listener.getStartingPlayer().getName().equals(username))
                 newSession = new SessionInitializer(
                         player1,
@@ -118,6 +162,6 @@ public class SessionInitializer {
             } catch (GameClientExceptions.ConnectionException e) {
                 e.printStackTrace();
             }
-        });
+        });*/
     }
 }

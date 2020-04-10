@@ -1,5 +1,6 @@
 package com.github.verluci.reversi.game;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,6 +153,25 @@ public class GameBoard {
      */
     private static boolean isBitSet(long value, int index) {
         return ((value & (1L << index)) != 0);
+    }
+
+    /**
+     * Returns a long value of the given player's TileStates.
+     * @param player The player you want to retrieve the long value from.
+     * @return A long value of the given player's TileStates.
+     */
+    public long getPlayerTilesLongValue(TileState player) {
+        var playerTiles = new BigInteger("0");
+        for (int y = 0; y < ySize; y++) {
+            for (int x = 0; x < xSize; x++) {
+                int index = (y * xSize) + x;
+
+                if(tiles[x][y].getState().equals(player))
+                    playerTiles = playerTiles.setBit(index);
+            }
+        }
+
+        return playerTiles.longValue();
     }
 
     //endregion

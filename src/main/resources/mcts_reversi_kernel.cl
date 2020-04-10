@@ -262,6 +262,11 @@ int evaluate_board(__private unsigned long players[], __global const unsigned in
 
 /*
  * The entry-point for this kernel.
+ * param: player_tiles      Is a 2 value-d array with the player's positions stored in a 64-bit ulong value.
+ * param: possible_moves    Is a 65 value-d array of the amount of moves that are possible in this turn
+                                the first value in the array is the amount of moves and the other values are the moves that are possible. 
+ * param: random_numbers    Is an array with THREAD_COUNT * 64 random integer numbers.
+ * param: results           Is an array with the size of THREAD_COUNT that contains if the given thread has won, draw or lost the game.
  */
 __kernel void mctsKernel(
     __global const unsigned long* player_tiles,
@@ -278,8 +283,14 @@ __kernel void mctsKernel(
     players[0] = player_tiles[0];
     players[1] = player_tiles[1];
 
+    // Divides the threads based on the amount of moves possible.
+    int move = (global_id % possible_moves[0]) + 1;
+
+    // Make the first move based on the result of move. 
+    make_move(possible_moves[move], players);
+
     // Pass the thread's result of this evaluation into the results buffer.
-    results[global_id] = evaluate_board(players, random_numbers, global_id);
+    results[global_id] = -evaluate_board(players, random_numbers, global_id);
 
     if (global_id == 0) {
         game_result[0] = players[0];
