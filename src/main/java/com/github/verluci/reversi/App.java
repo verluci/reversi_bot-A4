@@ -1,27 +1,29 @@
 package com.github.verluci.reversi;
 
+import com.github.verluci.reversi.game.Game;
+import com.github.verluci.reversi.game.SessionInitializer;
+import com.github.verluci.reversi.game.agents.Agent;
+import com.github.verluci.reversi.game.agents.LocalPlayerAgent;
+import com.github.verluci.reversi.game.agents.NetworkAgent;
 import com.github.verluci.reversi.gpgpu.GPUSelectionBox;
 import com.github.verluci.reversi.gpgpu.GraphicsDevice;
 import com.github.verluci.reversi.gpgpu.JOCLSample;
-import com.github.verluci.reversi.gui.LoginController;
-import com.github.verluci.reversi.gui.ScreenController;
-import com.sun.tools.javac.Main;
+import com.github.verluci.reversi.networking.GameClientExceptions;
+import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.fxml.JavaFXBuilderFactory;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.io.File;
+import com.github.verluci.reversi.networking.clients.GameClient;
+
 import java.io.IOException;
-import java.io.InputStream;
+
 
 /**
  * JavaFX App
@@ -29,7 +31,22 @@ import java.io.InputStream;
 public class App extends Application {
 
     GraphicsDevice selectedGraphicsDevice;
+
     private Stage primaryStage;
+
+    public GameClient gameClient;
+    public com.github.verluci.reversi.networking.types.Player localPlayer;
+    public Agent player1;
+
+    private static App instance;
+
+    public App() {
+        instance = this;
+    }
+
+    public static App getInstance() {
+        return instance;
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -69,5 +86,20 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    public void initializeConnection(String name) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException {
+        gameClient = new TelnetGameClient();
+        gameClient.connect("localhost", 7789);
+        this.localPlayer = new com.github.verluci.reversi.networking.types.Player(name);
+        gameClient.login(name);
+        player1 = new LocalPlayerAgent();
+    }
+
+    public void navigateScene(String scene) throws IOException {
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource(scene + ".fxml"));
+        Parent root = loader.load();
+        Scene newScene = new Scene(root);
+        primaryStage.setScene(newScene);
     }
 }
