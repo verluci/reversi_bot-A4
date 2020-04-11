@@ -1,8 +1,6 @@
 package com.github.verluci.reversi.game.agents;
 
-import com.github.verluci.reversi.game.GameBoard;
-import com.github.verluci.reversi.game.Tile;
-import com.github.verluci.reversi.game.TileState;
+import com.github.verluci.reversi.game.*;
 import com.github.verluci.reversi.gpgpu.GraphicsDevice;
 import org.jocl.*;
 
@@ -58,6 +56,14 @@ public class MCTSAIAgent extends AIAgent {
         int y = move / board.getXSize();
 
         return board.getTile(x, y);
+    }
+
+    @Override
+    public void setGame(Game game) {
+        if(game instanceof OthelloGame)
+            super.setGame(game);
+        else
+            throw new IllegalArgumentException("This MCTS-AI can only be used for Othello/Reversi!");
     }
 
     /**
