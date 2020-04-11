@@ -8,7 +8,7 @@ import com.github.verluci.reversi.networking.clients.GameClient;
 import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 
 import java.security.InvalidParameterException;
-import java.util.Random;
+import org.apache.commons.cli.*;
 
 public class SessionInitializer {
     private Game game;
@@ -46,11 +46,9 @@ public class SessionInitializer {
         while (game.getCurrentGameState() == Game.GameState.RUNNING) {
             switch (game.getCurrentPlayer()) {
                 case PLAYER1:
-                    System.out.println("NEXT PLAYER IS " + game.getCurrentPlayer());
                     player1.performNextMove();
                     break;
                 case PLAYER2:
-                    System.out.println("NEXT PLAYER IS " + game.getCurrentPlayer());
                     player2.performNextMove();
                     break;
             }
@@ -64,67 +62,64 @@ public class SessionInitializer {
         return game;
     }
 
-    //TODO: Remove this entry-point when all session-code has been implemented.
     /**
-     * A temporary entry-point to test SessionInitializer using TicTacToe.
-     * @param args Unused.
+     * An entry-point which can be used to run the Othello/Reversi AI in a headless state.
+     * @param args -h HOSTNAME, -p PORT, -u USERNAME
      */
-    public static void main(String[] args) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException, GameClientExceptions.SubscribeException {
-        var devices = JOCLSample.getGraphicsDevices();
-        var chosenDevice = devices.get(0);
+    public static void main(String[] args) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException {
+        //region Command Line Arguments
 
-        /*GameClient gameClient = new TelnetGameClient();
-        gameClient.connect("localhost", 7789);
-        String username = "player-" + new Random().nextInt(5000);
+        Options options = new Options();
+
+        Option usernameOption = new Option("u", "username", true, "The player's username on the server.");
+        usernameOption.setRequired(true);
+        options.addOption(usernameOption);
+
+        Option hostnameOption = new Option("h", "hostname", true, "The host-name or ip-address of the server.");
+        hostnameOption.setRequired(true);
+        options.addOption(hostnameOption);
+
+        Option portOption = new Option("p", "port", true, "The port of the server.");
+        portOption.setRequired(true);
+        options.addOption(portOption);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp(" ", options);
+
+            System.exit(1);
+        }
+
+        String username = cmd.getOptionValue("username");
+        String hostname = cmd.getOptionValue("hostname");
+        int port = Integer.parseInt(cmd.getOptionValue("port"));
+
+        //endregion
+
+        var graphicsDevices = JOCLSample.getGraphicsDevices();
+        var chosenDevice = graphicsDevices.get(0);
+
+        GameClient gameClient = new TelnetGameClient();
+        gameClient.connect(hostname, port);
+
         com.github.verluci.reversi.networking.types.Player localPlayer = new com.github.verluci.reversi.networking.types.Player(username);
         gameClient.login(username);
-        gameClient.subscribeToGame("Reversi");*/
 
-        Agent player1 = new RandomMoveAIAgent();
-        Agent player2 = new MCTSAIAgent(chosenDevice);
-
-        SessionInitializer newSession = null;
-
-        if(new Random().nextInt(2) == 1)
-            newSession = new SessionInitializer(
-                    player1,
-                    player2,
-                    OthelloGame.class);
-        else
-            newSession = new SessionInitializer(
-                    player2,
-                    player1,
-                    OthelloGame.class);
-
-        final com.github.verluci.reversi.networking.types.Player[] startingPlayer = { null };
-        SessionInitializer finalNewSession = newSession;
-        Thread sessionThread = new Thread(() -> {
-            finalNewSession.start(player1);
-        });
-
-        Game game = newSession.getGame();
-
-        game.onMove((mover, xPosition, yPosition) -> {
-            System.out.println("MOVE PERFORMED: " + mover.getClass().getSimpleName() + " " + xPosition + "," + yPosition);
-            System.out.println(game.board.toString());
-        });
-
-        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
-            System.out.println("Game has ended: p1=" + playerOneScore + ", p2=" + playerTwoScore + ", winner:" + winner);
-            System.out.println("\n" + game.getBoard().toString() + "\n");
-        });
-
-        sessionThread.start();
-
-        /*gameClient.onGameStart(listener -> {
-            Agent player1 = new RandomMoveAIAgent();
-            //Agent player1 = new MCTSAIAgent(chosenDevice);
+        gameClient.onGameStart(listener -> {
+            Agent player1 = new MCTSAIAgent(chosenDevice);
             Agent player2 = new NetworkAgent(gameClient, localPlayer);
 
-            SessionInitializer newSession = null;
+            SessionInitializer newSession;
 
             System.out.println("Starting player is " + listener.getStartingPlayer().getName());
-            System.out.println("Our AIAgent is " + (listener.getStartingPlayer().getName().equals(username) ? "PLAYER1" : "PLAYER2"));
+            System.out.println("The local Agent is " + (listener.getStartingPlayer().getName().equals(username) ? "PLAYER1" : "PLAYER2"));
+
             if(listener.getStartingPlayer().getName().equals(username))
                 newSession = new SessionInitializer(
                         player1,
@@ -155,13 +150,5 @@ public class SessionInitializer {
             startingPlayer[0] = listener.getStartingPlayer();
             sessionThread.start();
         });
-
-        gameClient.onGameEnd(listener -> {
-            try {
-                gameClient.disconnect();
-            } catch (GameClientExceptions.ConnectionException e) {
-                e.printStackTrace();
-            }
-        });*/
     }
 }

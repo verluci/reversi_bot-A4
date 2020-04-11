@@ -1,18 +1,30 @@
-#define EMPTY_TILE 0
+/**
+ * This file contains a kernel that can evaluate/play-randomly a Reversi/Othello game-board and returns the winning player.
+ * The method used some-what follows MCTS ; https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
+ * 
+ * A simple explanation to the algorithm is the following:
+ * 1. The amount of threads will be divided based on the possible moves
+        (provided as an input value in this kernel) it is able to make on the current state of the board.
+ * 2. All threads will randomly play the game until the game reaches an ending state (no more moves available for both players).
+ * 3. The ending state of the game WON +1, DRAW 0, LOSE -1, will be copied into the results array for every thread.
+ * 4. The results array will be parsed in the class MCTSAIAgent by counting the amount of wins for a given possible move.
+ */
 
-#define DRAW      0
-#define PLAYER    1
-#define OPPONENT  2
+// definitions for the different type of player's and tiles.
+// These definitions only increase readability of the code.
+#define EMPTY_TILE  0
+#define DRAW        0
+#define PLAYER      1
+#define OPPONENT    2
 
 /**
  * Returns the number of bits in an ulong.
- * (can be optimized by not using a while loop)
+ * Uses a similar method as; https://stackoverflow.com/a/21114060
  */
 int bit_count(unsigned long value)
 {
     int result = 0;
 
-    //while(value != 0ULL)
     for (int i = 0; i < 64; i++) {
         result += (int)(value & 1);
         value = value >> 1;
@@ -22,11 +34,11 @@ int bit_count(unsigned long value)
 }
 
 /**
- * Returns the nth bit in an ulong.
+ * Returns if the bit at index is set in a ulong.
  */
-bool get_nth_bit(unsigned long value, int index)
+bool is_bit_set(unsigned long value, int index)
 {
-    return (value & (1ULL << index)); //return (int) ((value >> index) & 1ULL);
+    return (value & (1ULL << index));
 }
 
 /**
@@ -38,15 +50,15 @@ bool is_valid_board(unsigned long player, unsigned long opponent)
 }
 
 /**
- * Returns the type of tile at the given cell.
+ * Returns the type of tile at the given tile.
  * 0 is empty 1 is the current player, 2 is the opponent.
  */
-int get_tile_type(int cell, unsigned long player, unsigned long opponent)
+int get_tile_type(int tile, unsigned long player, unsigned long opponent)
 {
-    if (get_nth_bit(player, cell))
+    if (is_bit_set(player, tile))
         return PLAYER;
 
-    if (get_nth_bit(opponent, cell))
+    if (is_bit_set(opponent, tile))
         return OPPONENT;
 
     return EMPTY_TILE;
@@ -55,39 +67,39 @@ int get_tile_type(int cell, unsigned long player, unsigned long opponent)
 /**
  * Return if a player piece is at the end of this direction.
  */
-bool is_players_piece_on_the_end(int cell, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
+bool is_players_piece_on_the_end(int tile, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
 {
-    int current_cell = cell;
+    int current_tile = tile;
 
-    // Can be replaced with (get_nth_bit(opponent, cell) == 1) if optimisation somehow fails
-    while (get_tile_type(current_cell, player, opponent) == OPPONENT) {
-        int row = current_cell / 8;
-        int column = current_cell % 8;
+    // Can be replaced with (is_bit_set(opponent, tile) == 1) if optimisation somehow fails
+    while (get_tile_type(current_tile, player, opponent) == OPPONENT) {
+        int row = current_tile / 8;
+        int column = current_tile % 8;
         int current_row = row + direction_row;
         int current_column = column + direction_column;
 
         if (!(current_row >= 0 && current_row < 8) || !((current_column >= 0 && current_column < 8)))
             return false;
 
-        current_cell = (current_row * 8) + current_column;
+        current_tile = (current_row * 8) + current_column;
     }
 
-    // Can be replaced with (get_nth_bit(player, cell) == 1) if optimisation somehow fails
-    return get_tile_type(current_cell, player, opponent) == PLAYER;
+    // Can be replaced with (is_bit_set(player, tile) == 1) if optimisation somehow fails
+    return get_tile_type(current_tile, player, opponent) == PLAYER;
 }
 
 /**
  * Checks if the given tile is a valid move.
  */
-bool is_correct_move(int cell, unsigned long player, unsigned long opponent)
+bool is_correct_move(int tile, unsigned long player, unsigned long opponent)
 {
-    int row = cell / 8;
-    int column = cell % 8;
+    int row = tile / 8;
+    int column = tile % 8;
 
     if (!(row >= 0 && row < 8) || !((column >= 0 && column < 8)))
         return false;
 
-    if (get_tile_type(cell, player, opponent) != EMPTY_TILE)
+    if (get_tile_type(tile, player, opponent) != EMPTY_TILE)
         return false;
 
     //                                                NW,  N, NE,  W, E, SW, S, SE
@@ -103,12 +115,12 @@ bool is_correct_move(int cell, unsigned long player, unsigned long opponent)
         if (!(current_row >= 0 && current_row < 8) || !((current_column >= 0 && current_column < 8)))
             continue;
 
-        int current_cell = (current_row * 8) + current_column;
+        int current_tile = (current_row * 8) + current_column;
 
-        if (get_tile_type(current_cell, player, opponent) != OPPONENT)
+        if (get_tile_type(current_tile, player, opponent) != OPPONENT)
             continue;
 
-        if (is_players_piece_on_the_end(current_cell, direction_row, direction_column, player, opponent))
+        if (is_players_piece_on_the_end(current_tile, direction_row, direction_column, player, opponent))
             return true;
     }
 
@@ -129,7 +141,7 @@ bool valid_move_available(unsigned long player, unsigned long opponent)
 }
 
 /**
- * Switches the pointers of the two player.
+ * Switches the values of the two players.
  * Essentially makes the opponent the new player
  * and the player the new opponent.
  */
@@ -138,26 +150,27 @@ void pass_turn(unsigned long players[])
     unsigned long tempState = players[0];
     players[0] = players[1];
     players[1] = tempState;
-    /*unsigned long tmp = *opponent;
-  *opponent = *player;
-  *player = tmp;*/
 }
 
-unsigned long get_flip_mask(int cell, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
+/**
+ * This function returns a ulong that contains information on which tiles that should be flipped.
+ * The ulong mask generated by this method can be XOR'd with the board to flip the tiles.
+ */
+unsigned long get_flip_mask(int tile, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
 {
     unsigned long result = 0ULL;
-    int current_cell = cell;
+    int current_tile = tile;
 
-    while (get_tile_type(current_cell, player, opponent) == OPPONENT) {
-        result = result | (1ULL << current_cell);
+    while (get_tile_type(current_tile, player, opponent) == OPPONENT) {
+        result = result | (1ULL << current_tile);
 
-        int row = current_cell / 8;
-        int column = current_cell % 8;
+        int row = current_tile / 8;
+        int column = current_tile % 8;
 
         int current_row = row + direction_row;
         int current_column = column + direction_column;
 
-        current_cell = (current_row * 8) + current_column;
+        current_tile = (current_row * 8) + current_column;
     }
 
     return result;
@@ -165,17 +178,18 @@ unsigned long get_flip_mask(int cell, int direction_row, int direction_column, u
 
 /**
  * This method changes a tile on the board to the given player.
+ * And all connected tiles using a flip_mask.
  */
-void make_move(int cell, unsigned long players[])
+void make_move(int tile, unsigned long players[])
 {
-    int row = cell / 8;
-    int column = cell % 8;
+    int row = tile / 8;
+    int column = tile % 8;
 
     unsigned long flip_mask = 0ULL;
 
-    //                                                NW,  N, NE,  W, E, SW, S, SE
-    int row_directions[] = { -1, -1, -1, 0, 0, 1, 1, 1 };
-    int column_directions[] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    //                            NW,  N, NE,  W,  E, SW,  S, SE
+    int row_directions[] =      { -1, -1, -1,  0,  0,  1,  1,  1 };
+    int column_directions[] =   { -1,  0,  1, -1,  1, -1,  0,  1 };
     for (int i = 0; i < 8; i++) {
         int direction_row = row_directions[i];
         int direction_column = column_directions[i];
@@ -186,22 +200,26 @@ void make_move(int cell, unsigned long players[])
         if (!(current_row >= 0 && current_row < 8) || !((current_column >= 0 && current_column < 8)))
             continue;
 
-        int current_cell = (current_row * 8) + current_column;
+        int current_tile = (current_row * 8) + current_column;
 
-        if (get_tile_type(current_cell, players[0], players[1]) != OPPONENT)
+        if (get_tile_type(current_tile, players[0], players[1]) != OPPONENT)
             continue;
 
-        if (is_players_piece_on_the_end(current_cell, direction_row, direction_column, players[0], players[1]))
-            flip_mask = flip_mask | get_flip_mask(current_cell, direction_row, direction_column, players[0], players[1]);
+        if (is_players_piece_on_the_end(current_tile, direction_row, direction_column, players[0], players[1]))
+            flip_mask = flip_mask | get_flip_mask(current_tile, direction_row, direction_column, players[0], players[1]);
     }
 
     unsigned long new_player_pieces = players[1] ^ flip_mask;
-    unsigned long new_opponent_pieces = (players[0] ^ flip_mask) | (1ULL << cell);
+    unsigned long new_opponent_pieces = (players[0] ^ flip_mask) | (1ULL << tile);
 
     players[0] = new_player_pieces;
     players[1] = new_opponent_pieces;
 }
 
+/**
+ * Will return the player with the most tiles in its colors.
+ * If both players have the same amount of tiles; DRAW will be returned instead.
+ */
 int get_winner(unsigned long player, unsigned long opponent)
 {
     int bit_count_player = bit_count(player);
@@ -222,7 +240,7 @@ int get_winner(unsigned long player, unsigned long opponent)
  */
 int evaluate_board(__private unsigned long players[], __global const unsigned int* random_numbers, __private int global_id)
 {
-    int result_multiplier = 1;
+    int game_result = 1;
 
     int correct_moves[64];
     int no_move_available_counter = 0;
@@ -241,18 +259,20 @@ int evaluate_board(__private unsigned long players[], __global const unsigned in
                     correct_moves[idx++] = j;
             }
 
+            // Picks a random number from random_numbers and % it with the amount of possible moves.
             __private unsigned int element_number = random_numbers[global_id * 64 + i] % idx;
+            // Uses the value retrieved from the previous line as the move it is going to make.
             make_move(correct_moves[element_number], players);
         }
 
-        result_multiplier *= -1;
+        game_result *= -1;
     }
 
     switch (get_winner(players[0], players[1])) {
     case PLAYER:
-        return 1 * result_multiplier;
+        return 1 * game_result;
     case OPPONENT:
-        return -1 * result_multiplier;
+        return -1 * game_result;
     case DRAW:
         return 0;
     }
@@ -262,6 +282,7 @@ int evaluate_board(__private unsigned long players[], __global const unsigned in
 
 /*
  * The entry-point for this kernel.
+ *
  * param: player_tiles      Is a 2 value-d array with the player's positions stored in a 64-bit ulong value.
  * param: possible_moves    Is a 65 value-d array of the amount of moves that are possible in this turn
                                 the first value in the array is the amount of moves and the other values are the moves that are possible. 
@@ -272,13 +293,12 @@ __kernel void mctsKernel(
     __global const unsigned long* player_tiles,
     __global const int* possible_moves,
     __global const unsigned int* random_numbers,
-    __global int* results,
-    __global unsigned long* game_result)
+    __global int* results)
 {
     // Retrieve the global_id of this thread.
     __private int global_id = get_global_id(0);
 
-    // Copy the global tile positions to a local array.
+    // Copy the global tile positions to a private array.
     __private unsigned long players[2];
     players[0] = player_tiles[0];
     players[1] = player_tiles[1];
@@ -290,10 +310,6 @@ __kernel void mctsKernel(
     make_move(possible_moves[move], players);
 
     // Pass the thread's result of this evaluation into the results buffer.
+    // The evaluation is passed to results negative since a single move has already been made which inverts the out-going value.
     results[global_id] = -evaluate_board(players, random_numbers, global_id);
-
-    if (global_id == 0) {
-        game_result[0] = players[0];
-        game_result[1] = players[1];
-    }
 }

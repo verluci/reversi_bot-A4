@@ -10,23 +10,34 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import static org.jocl.CL.*;
 import static org.jocl.CL.clReleaseContext;
 
+/**
+ * This class contains a GPU accelerated Othello AI based on the MCTS algorithm.
+ * https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
+ *
+ * For the explanation of the data allocation process see the method getOptimalMoveUsingOpenCL() in this class.
+ * For the explanation of the executed kernel-code on the graphics-device see resources/mcts_reversi_kernel.cl
+ */
 public class MCTSAIAgent extends AIAgent {
+    private final GraphicsDevice graphicsDevice;
 
-    private static final int NUMBER_OF_TILES = 64;
-
-    private GraphicsDevice graphicsDevice;
-
+    /**
+     * Constructor for MCTSAIAgent
+     * @param graphicsDevice The graphics device the games should be simulated on.
+     */
     public MCTSAIAgent(GraphicsDevice graphicsDevice) {
         this.graphicsDevice = graphicsDevice;
     }
 
+    /**
+     * @param board The board on which the optimal tile should be found on.
+     * @return The most optimal tile the MCTS-ai could find.
+     */
     @Override
     protected Tile findOptimalMove(GameBoard board) {
         var moves = board.getTilesWithState(TileState.POSSIBLE_MOVE);
@@ -49,13 +60,34 @@ public class MCTSAIAgent extends AIAgent {
         return board.getTile(x, y);
     }
 
+    /**
+     * This methods retrieves the most optimal tile it can find by using NUMBER_OF_THREADS amount of simulations.
+     * The method first creates three arrays containing: the current state of the board, random numbers and an array
+     * where the calculated results can be copied back into.
+     *
+     * After this, the arrays will be allocated and copied as buffers to the given GraphicsDevice.
+     * The GraphicsDevice will then perform the NUMBER_OF_THREADS simulations.
+     * see 'resources/mcts_reversi_kernel.cl for' the explanation of the kernel executions of the simulations.
+     *
+     * When the simulations are done, the results are copied into the resultArray on the host-machine and the
+     * allocated buffers will be released on the GraphicsDevice. The host machine will then sum all wins of a
+     * selected path and will choose the path with the most wins.
+     *
+     * @param graphicsDevice The graphics-device on which the simulations should be performed.
+     * @param player The player1 in the OthelloGame also known as black.
+     * @param opponent The player2 in the OthelloGame also known as white.
+     * @param possibleMoves An array of size 65 in which the first value is the count of possible moves, following all
+     *                      possible moves. example: [ 4, 15, 13, 12, 8, 0, 0, 0, ... ]
+     * @return The most optimal move the AI was able to find.
+     */
     private static int getOptimalMoveUsingOpenCL(GraphicsDevice graphicsDevice, long player, long opponent, int[] possibleMoves) {
         var platform = graphicsDevice.getPlatform_id();
         var device = graphicsDevice.getId();
 
-        int NUMBER_OF_TRIES = 400*1024;
-        int NUMBER_OF_THREADS = NUMBER_OF_TRIES * 4; // Thread Factor, Amount, Number of possible moves.
-        int NUMBER_OF_RANDOM_NUMBERS = NUMBER_OF_THREADS * 64;
+        // The amount of threads that should be executed on the graphics-device.
+        final int NUMBER_OF_THREADS = 1600 * 1024;
+        // The graphics-device should contains 64 random numbers per simulation (for every possible move 1 random number).
+        final int RANDOM_NUMBER_COUNT = NUMBER_OF_THREADS * 64;
 
         // The first player in this array should always be the starting player
         long[] players = {
@@ -63,13 +95,12 @@ public class MCTSAIAgent extends AIAgent {
                 opponent
         };
 
-        int[] randomNumberArray = new int[NUMBER_OF_RANDOM_NUMBERS];
+        int[] randomNumberArray = new int[RANDOM_NUMBER_COUNT];
         int[] resultArray = new int[NUMBER_OF_THREADS];
-        long[] playerResult = new long[2];
 
         // Fill the random-number-array with random values.
         Random random = new Random();
-        for (int i=0; i < NUMBER_OF_RANDOM_NUMBERS; i++)
+        for (int i=0; i < RANDOM_NUMBER_COUNT; i++)
             randomNumberArray[i] = random.nextInt();
 
         // Locate pointers of the input values
@@ -78,7 +109,6 @@ public class MCTSAIAgent extends AIAgent {
         Pointer ptrRandomNumbers = Pointer.to(randomNumberArray);
         // Locate the pointer of the output values.
         Pointer ptrResults = Pointer.to(resultArray);
-        Pointer ptrPlayerTilesResult = Pointer.to(playerResult);
 
         //region Context
 
@@ -91,18 +121,13 @@ public class MCTSAIAgent extends AIAgent {
 
         // Create a context for the selected device
         cl_context context = clCreateContext(
-                contextProperties, 1, new cl_device_id[]{device},
+                contextProperties, 1, new cl_device_id[]{ device },
                 null, null, null);
 
         // Create a command-queue for the selected device
         long properties = 0;
         properties |= CL.CL_QUEUE_PROFILING_ENABLE;
         cl_command_queue commandQueue = clCreateCommandQueue(context, device, properties, null);
-
-        // For OpenCL 2.0 and higher
-        //cl_queue_properties properties = new cl_queue_properties();
-        //cl_command_queue commandQueue = clCreateCommandQueueWithProperties(
-        //        context, device, properties, null);
 
         //endregion
 
@@ -111,9 +136,8 @@ public class MCTSAIAgent extends AIAgent {
         // Allocate the memory objects for the input- and output data
         cl_mem playerTilesMem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_ulong * 2, ptrPlayerTiles, null);
         cl_mem possibleMovesMem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * possibleMoves.length, ptrPossibleMoves, null);
-        cl_mem randomNumbersMem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_uint * NUMBER_OF_RANDOM_NUMBERS, ptrRandomNumbers, null);
+        cl_mem randomNumbersMem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_uint * RANDOM_NUMBER_COUNT, ptrRandomNumbers, null);
         cl_mem resultsMem = clCreateBuffer(context, CL_MEM_READ_WRITE, Sizeof.cl_int * NUMBER_OF_THREADS, null, null);
-        cl_mem playerTilesResultMem = clCreateBuffer(context, CL_MEM_READ_WRITE, Sizeof.cl_ulong * 2, null, null);
 
         //endregion
 
@@ -141,12 +165,11 @@ public class MCTSAIAgent extends AIAgent {
         //endregion
 
         // Set the arguments for the kernel
-        int a = 0;
-        clSetKernelArg(kernel, a++, Sizeof.cl_mem, Pointer.to(playerTilesMem));
-        clSetKernelArg(kernel, a++, Sizeof.cl_mem, Pointer.to(possibleMovesMem));
-        clSetKernelArg(kernel, a++, Sizeof.cl_mem, Pointer.to(randomNumbersMem));
-        clSetKernelArg(kernel, a++, Sizeof.cl_mem, Pointer.to(resultsMem));
-        clSetKernelArg(kernel, a++, Sizeof.cl_mem, Pointer.to(playerTilesResultMem));
+        int arg = 0;
+        clSetKernelArg(kernel, arg++, Sizeof.cl_mem, Pointer.to(playerTilesMem));
+        clSetKernelArg(kernel, arg++, Sizeof.cl_mem, Pointer.to(possibleMovesMem));
+        clSetKernelArg(kernel, arg++, Sizeof.cl_mem, Pointer.to(randomNumbersMem));
+        clSetKernelArg(kernel, arg++, Sizeof.cl_mem, Pointer.to(resultsMem));
 
         // Set the work-item dimensions
         long[] global_work_size = new long[]{ NUMBER_OF_THREADS };
@@ -160,34 +183,29 @@ public class MCTSAIAgent extends AIAgent {
         clEnqueueReadBuffer(commandQueue, resultsMem, CL_TRUE, 0,
                 Sizeof.cl_int * NUMBER_OF_THREADS, ptrResults, 0, null, null);
 
-        // Read the output of the first match.
-        clEnqueueReadBuffer(commandQueue, playerTilesResultMem, CL_TRUE, 0,
-                Sizeof.cl_ulong * 2, ptrPlayerTilesResult, 0, null, null);
-
-        // Release kernel, program, and memory objects
+        // Release kernel, program and memory buffers.
         clReleaseMemObject(playerTilesMem);
         clReleaseMemObject(possibleMovesMem);
         clReleaseMemObject(randomNumbersMem);
         clReleaseMemObject(resultsMem);
-        clReleaseMemObject(playerTilesResultMem);
-
         clReleaseKernel(kernel);
         clReleaseProgram(program);
         clReleaseCommandQueue(commandQueue);
         clReleaseContext(context);
 
-        System.out.println("Winner: " + resultArray[0]);
-        GameBoard board = GameBoard.createGameBoardUsingLongValues(playerResult[0], playerResult[1]);
-        System.out.println(board.toString());
-
+        // Print execution statistics.
         ExecutionStatistics executionStatistics = new ExecutionStatistics();
         executionStatistics.addEntry("mctsKernel", work_event);
         executionStatistics.print();
 
+        // Create arrays for the win/draw/lose counts.
+        // Size is the amount of moves it could make when starting the simulation.
         int[] win_counter = new int[possibleMoves[0]];
         int[] draw_counter = new int[possibleMoves[0]];
         int[] lose_counter = new int[possibleMoves[0]];
 
+        // Loops over the results of all simulations and depending on the ending win state
+        // Increments the counter for a chosen path of Win/Draw/Lose
         for (int i = 0; i < resultArray.length; i++) {
             int chosen_path = (i % possibleMoves[0]);
             switch (resultArray[i]) {
@@ -203,17 +221,14 @@ public class MCTSAIAgent extends AIAgent {
             }
         }
 
-        System.out.println("wins=" + Arrays.toString(win_counter));
-        System.out.println("draws=" + Arrays.toString(draw_counter));
-        System.out.println("loses=" + Arrays.toString(lose_counter));
-
+        // The path with the most wins will be chosen as a move.
         int largest = 0;
-        for ( int i = 1; i < win_counter.length; i++ ) {
-            if ( win_counter[i] > win_counter[largest] ) largest = i;
+        for (int i = 1; i < win_counter.length; i++) {
+            if (win_counter[i] > win_counter[largest])
+                largest = i;
         }
 
-        //System.out.println("player_win_count=" + player_win_count + ", opponent_win_count=" + opponent_win_count + ", draw_count=" + draw_count);
-
+        // Returns the path with the most wins.
         return possibleMoves[largest+1];
     }
 
@@ -221,6 +236,9 @@ public class MCTSAIAgent extends AIAgent {
      * A simple helper class for tracking cl_events and printing
      * timing information for the execution of the commands that
      * are associated with the events.
+     *
+     * Retrieved from here: https://github.com/gpu/JOCLSamples/blob/master/src/main/java/org/jocl/samples/JOCLEventSample.java
+     * This code does not add anything to the AI except for run-time execution information in milliseconds.
      */
     static class ExecutionStatistics
     {
