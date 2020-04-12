@@ -24,7 +24,7 @@ public class TicTacToeGame extends Game {
 
         for (int y = 0; y < board.getYSize(); y++) {
             for (int x = 0; x < board.getXSize(); x++) {
-                if(tiles[x][y].getState() != TileState.PLAYER1 && tiles[x][y].getState() != TileState.PLAYER2)
+                if(tiles[x][y].isEmpty())
                     tiles[x][y].setState(TileState.POSSIBLE_MOVE);
             }
         }
@@ -36,21 +36,13 @@ public class TicTacToeGame extends Game {
             return false;
 
         Tile tile = board.getTile(x, y);
-        return tile.getState() == TileState.POSSIBLE_MOVE || tile.getState() == TileState.NONE;
+        return tile.isEmpty();
     }
 
     @Override
     protected void performMove(Player player, int x, int y) {
         Tile tile = board.getTile(x, y);
-
-        switch (player) {
-            case PLAYER1:
-                tile.setState(TileState.PLAYER1);
-                break;
-            case PLAYER2:
-                tile.setState(TileState.PLAYER2);
-                break;
-        }
+        tile.setState(getTileStateUsingPlayer(player));
     }
 
     @Override

@@ -413,7 +413,7 @@ public class TelnetGameClient extends GameClient {
      * @param command The command that needs to be sent to the server.
      * @throws Exception Thrown when the response is not OK but an ERR.
      */
-    private void sendAndReceiveProtocol(String command) throws Exception {
+    private synchronized void sendAndReceiveProtocol(String command) throws Exception {
         try {
             String output = command + "\n";
             out.writeBytes(output);
