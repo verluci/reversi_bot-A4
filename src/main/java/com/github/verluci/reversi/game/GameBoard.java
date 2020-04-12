@@ -1,5 +1,6 @@
 package com.github.verluci.reversi.game;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,6 +118,60 @@ public class GameBoard {
         for (Tile tile : tileList) {
             tiles[tile.getXCoordinate()][tile.getYCoordinate()] = tile;
         }
+    }
+
+    //endregion
+
+    //region GPGPU Conversion
+
+    /**
+     * This method creates a GameBoard using two long values.
+     * @param player1 The player defined as player1
+     * @param player2 The player defined as player2
+     * @return A GameBoard with the given long values as tiles.
+     */
+    public static GameBoard createGameBoardUsingLongValues(long player1, long player2) {
+        GameBoard board = new GameBoard(8, 8);
+
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                if (isBitSet(player1, (y * 8) + x))
+                    board.getTile(x, y).setState(TileState.PLAYER1);
+                else if (isBitSet(player2, (y * 8) + x))
+                    board.getTile(x, y).setState(TileState.PLAYER2);
+            }
+        }
+
+        return board;
+    }
+
+    /**
+     * Check if a certain bit is set to 1
+     * @param value The value you want to check if a bit has been set on.
+     * @param index The index of the bit you want to check.
+     * @return If the given index on the value's bit is set to 1
+     */
+    private static boolean isBitSet(long value, int index) {
+        return ((value & (1L << index)) != 0);
+    }
+
+    /**
+     * Returns a long value of the given player's TileStates.
+     * @param player The player you want to retrieve the long value from.
+     * @return A long value of the given player's TileStates.
+     */
+    public long getPlayerTilesLongValue(TileState player) {
+        var playerTiles = new BigInteger("0");
+        for (int y = 0; y < ySize; y++) {
+            for (int x = 0; x < xSize; x++) {
+                int index = (y * xSize) + x;
+
+                if(tiles[x][y].getState().equals(player))
+                    playerTiles = playerTiles.setBit(index);
+            }
+        }
+
+        return playerTiles.longValue();
     }
 
     //endregion

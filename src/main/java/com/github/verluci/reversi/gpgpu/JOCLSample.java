@@ -1,10 +1,3 @@
-/*
- * JOCL - Java bindings for OpenCL
- * https://github.com/gpu/JOCLSamples/blob/master/src/main/java/org/jocl/samples/JOCLDeviceQuery.java
- * https://github.com/gpu/JOCLSamples/blob/master/src/main/java/org/jocl/samples/JOCLSample.java
- * Copyright 2009-2019 Marco Hutter - http://www.jocl.org/
- */
-
 package com.github.verluci.reversi.gpgpu;
 
 import static org.jocl.CL.*;
@@ -22,14 +15,18 @@ import javafx.collections.ObservableList;
 import org.jocl.*;
 
 /**
- * A small JOCL sample.
+ * JOCL A Small sample - Java bindings for OpenCL
+ *
+ * Uses code from:
+ * https://github.com/gpu/JOCLSamples/blob/master/src/main/java/org/jocl/samples/JOCLDeviceQuery.java
+ * https://github.com/gpu/JOCLSamples/blob/master/src/main/java/org/jocl/samples/JOCLSample.java
+ * Copyright 2009-2019 Marco Hutter - http://www.jocl.org/
+ *
+ * This code is used to retrieve a list of GraphicsDevices' and their specs plus a simple test kernel to see if
+ * OpenCL works.
  */
 public class JOCLSample
 {
-    /**
-     * The source code of the OpenCL program to execute
-     */
-
     //region OpenCL Device Information
 
     public static ObservableList<GraphicsDevice> getGraphicsDevices() {

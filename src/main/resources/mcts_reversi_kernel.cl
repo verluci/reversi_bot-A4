@@ -1,0 +1,315 @@
+/**
+ * This file contains a kernel that can evaluate/play-randomly a Reversi/Othello game-board and returns the winning player.
+ * The method used some-what follows MCTS ; https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
+ * 
+ * A simple explanation to the algorithm is the following:
+ * 1. The amount of threads will be divided based on the possible moves
+        (provided as an input value in this kernel) it is able to make on the current state of the board.
+ * 2. All threads will randomly play the game until the game reaches an ending state (no more moves available for both players).
+ * 3. The ending state of the game WON +1, DRAW 0, LOSE -1, will be copied into the results array for every thread.
+ * 4. The results array will be parsed in the class MCTSAIAgent by counting the amount of wins for a given possible move.
+ */
+
+// definitions for the different type of player's and tiles.
+// These definitions only increase readability of the code.
+#define EMPTY_TILE  0
+#define DRAW        0
+#define PLAYER      1
+#define OPPONENT    2
+
+/**
+ * Returns the number of bits in an ulong.
+ * Uses a similar method as; https://stackoverflow.com/a/21114060
+ */
+int bit_count(unsigned long value)
+{
+    int result = 0;
+
+    for (int i = 0; i < 64; i++) {
+        result += (int)(value & 1);
+        value = value >> 1;
+    }
+
+    return result;
+}
+
+/**
+ * Returns if the bit at index is set in a ulong.
+ */
+bool is_bit_set(unsigned long value, int index)
+{
+    return (value & (1ULL << index));
+}
+
+/**
+ * Checks if the board does not contain any pieces that somehow overlap.
+ */
+bool is_valid_board(unsigned long player, unsigned long opponent)
+{
+    return (player & opponent) == 0ULL;
+}
+
+/**
+ * Returns the type of tile at the given tile.
+ * 0 is empty 1 is the current player, 2 is the opponent.
+ */
+int get_tile_type(int tile, unsigned long player, unsigned long opponent)
+{
+    if (is_bit_set(player, tile))
+        return PLAYER;
+
+    if (is_bit_set(opponent, tile))
+        return OPPONENT;
+
+    return EMPTY_TILE;
+}
+
+/**
+ * Return if a player piece is at the end of this direction.
+ */
+bool is_players_piece_on_the_end(int tile, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
+{
+    int current_tile = tile;
+
+    // Can be replaced with (is_bit_set(opponent, tile) == 1) if optimisation somehow fails
+    while (get_tile_type(current_tile, player, opponent) == OPPONENT) {
+        int row = current_tile / 8;
+        int column = current_tile % 8;
+        int current_row = row + direction_row;
+        int current_column = column + direction_column;
+
+        if (!(current_row >= 0 && current_row < 8) || !((current_column >= 0 && current_column < 8)))
+            return false;
+
+        current_tile = (current_row * 8) + current_column;
+    }
+
+    // Can be replaced with (is_bit_set(player, tile) == 1) if optimisation somehow fails
+    return get_tile_type(current_tile, player, opponent) == PLAYER;
+}
+
+/**
+ * Checks if the given tile is a valid move.
+ */
+bool is_correct_move(int tile, unsigned long player, unsigned long opponent)
+{
+    int row = tile / 8;
+    int column = tile % 8;
+
+    if (!(row >= 0 && row < 8) || !((column >= 0 && column < 8)))
+        return false;
+
+    if (get_tile_type(tile, player, opponent) != EMPTY_TILE)
+        return false;
+
+    //                                                NW,  N, NE,  W, E, SW, S, SE
+    int row_directions[] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+    int column_directions[] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    for (int i = 0; i < 8; i++) {
+        int direction_row = row_directions[i];
+        int direction_column = column_directions[i];
+
+        int current_row = row + direction_row;
+        int current_column = column + direction_column;
+
+        if (!(current_row >= 0 && current_row < 8) || !((current_column >= 0 && current_column < 8)))
+            continue;
+
+        int current_tile = (current_row * 8) + current_column;
+
+        if (get_tile_type(current_tile, player, opponent) != OPPONENT)
+            continue;
+
+        if (is_players_piece_on_the_end(current_tile, direction_row, direction_column, player, opponent))
+            return true;
+    }
+
+    return false;
+}
+
+/**
+ * Checks if a given move is valid for the given player.
+ */
+bool valid_move_available(unsigned long player, unsigned long opponent)
+{
+    for (int i = 0; i < 64; i++) {
+        if (is_correct_move(i, player, opponent))
+            return true;
+    }
+
+    return false;
+}
+
+/**
+ * Switches the values of the two players.
+ * Essentially makes the opponent the new player
+ * and the player the new opponent.
+ */
+void pass_turn(unsigned long players[])
+{
+    unsigned long tempState = players[0];
+    players[0] = players[1];
+    players[1] = tempState;
+}
+
+/**
+ * This function returns a ulong that contains information on which tiles that should be flipped.
+ * The ulong mask generated by this method can be XOR'd with the board to flip the tiles.
+ */
+unsigned long get_flip_mask(int tile, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
+{
+    unsigned long result = 0ULL;
+    int current_tile = tile;
+
+    while (get_tile_type(current_tile, player, opponent) == OPPONENT) {
+        result = result | (1ULL << current_tile);
+
+        int row = current_tile / 8;
+        int column = current_tile % 8;
+
+        int current_row = row + direction_row;
+        int current_column = column + direction_column;
+
+        current_tile = (current_row * 8) + current_column;
+    }
+
+    return result;
+}
+
+/**
+ * This method changes a tile on the board to the given player.
+ * And all connected tiles using a flip_mask.
+ */
+void make_move(int tile, unsigned long players[])
+{
+    int row = tile / 8;
+    int column = tile % 8;
+
+    unsigned long flip_mask = 0ULL;
+
+    //                            NW,  N, NE,  W,  E, SW,  S, SE
+    int row_directions[] =      { -1, -1, -1,  0,  0,  1,  1,  1 };
+    int column_directions[] =   { -1,  0,  1, -1,  1, -1,  0,  1 };
+    for (int i = 0; i < 8; i++) {
+        int direction_row = row_directions[i];
+        int direction_column = column_directions[i];
+
+        int current_row = row + direction_row;
+        int current_column = column + direction_column;
+
+        if (!(current_row >= 0 && current_row < 8) || !((current_column >= 0 && current_column < 8)))
+            continue;
+
+        int current_tile = (current_row * 8) + current_column;
+
+        if (get_tile_type(current_tile, players[0], players[1]) != OPPONENT)
+            continue;
+
+        if (is_players_piece_on_the_end(current_tile, direction_row, direction_column, players[0], players[1]))
+            flip_mask = flip_mask | get_flip_mask(current_tile, direction_row, direction_column, players[0], players[1]);
+    }
+
+    unsigned long new_player_pieces = players[1] ^ flip_mask;
+    unsigned long new_opponent_pieces = (players[0] ^ flip_mask) | (1ULL << tile);
+
+    players[0] = new_player_pieces;
+    players[1] = new_opponent_pieces;
+}
+
+/**
+ * Will return the player with the most tiles in its colors.
+ * If both players have the same amount of tiles; DRAW will be returned instead.
+ */
+int get_winner(unsigned long player, unsigned long opponent)
+{
+    int bit_count_player = bit_count(player);
+    int bit_count_opponent = bit_count(opponent);
+
+    if (bit_count_player > bit_count_opponent)
+        return PLAYER;
+
+    if (bit_count_player < bit_count_opponent)
+        return OPPONENT;
+
+    return DRAW;
+}
+
+/**
+ * Evaluates a board from begin state to end state
+ * and returns the winning player.
+ */
+int evaluate_board(__private unsigned long players[], __global const unsigned int* random_numbers, __private int global_id)
+{
+    int game_result = 1;
+
+    int correct_moves[64];
+    int no_move_available_counter = 0;
+    for (int i = 0; i < 64; i++) {
+        if(no_move_available_counter > 1)
+            break;
+
+        if (!valid_move_available(players[0], players[1])) {
+            pass_turn(players);
+            no_move_available_counter++;
+        } else {
+            no_move_available_counter = 0;
+            unsigned int idx = 0;
+            for (int j = 0; j < 64; j++) {
+                if (is_correct_move(j, players[0], players[1]))
+                    correct_moves[idx++] = j;
+            }
+
+            // Picks a random number from random_numbers and % it with the amount of possible moves.
+            __private unsigned int element_number = random_numbers[global_id * 64 + i] % idx;
+            // Uses the value retrieved from the previous line as the move it is going to make.
+            make_move(correct_moves[element_number], players);
+        }
+
+        game_result *= -1;
+    }
+
+    switch (get_winner(players[0], players[1])) {
+    case PLAYER:
+        return 1 * game_result;
+    case OPPONENT:
+        return -1 * game_result;
+    case DRAW:
+        return 0;
+    }
+
+    return -1;
+}
+
+/*
+ * The entry-point for this kernel.
+ *
+ * param: player_tiles      Is a 2 value-d array with the player's positions stored in a 64-bit ulong value.
+ * param: possible_moves    Is a 65 value-d array of the amount of moves that are possible in this turn
+                                the first value in the array is the amount of moves and the other values are the moves that are possible. 
+ * param: random_numbers    Is an array with THREAD_COUNT * 64 random integer numbers.
+ * param: results           Is an array with the size of THREAD_COUNT that contains if the given thread has won, draw or lost the game.
+ */
+__kernel void mctsKernel(
+    __global const unsigned long* player_tiles,
+    __global const int* possible_moves,
+    __global const unsigned int* random_numbers,
+    __global int* results)
+{
+    // Retrieve the global_id of this thread.
+    __private int global_id = get_global_id(0);
+
+    // Copy the global tile positions to a private array.
+    __private unsigned long players[2];
+    players[0] = player_tiles[0];
+    players[1] = player_tiles[1];
+
+    // Divides the threads based on the amount of moves possible.
+    int move = (global_id % possible_moves[0]) + 1;
+
+    // Make the first move based on the result of move. 
+    make_move(possible_moves[move], players);
+
+    // Pass the thread's result of this evaluation into the results buffer.
+    // The evaluation is passed to results negative since a single move has already been made which inverts the out-going value.
+    results[global_id] = -evaluate_board(players, random_numbers, global_id);
+}
