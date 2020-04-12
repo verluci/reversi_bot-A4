@@ -64,7 +64,7 @@ public class SessionInitializer {
 
     /**
      * An entry-point which can be used to run the Othello/Reversi AI in a headless state.
-     * @param args -h HOSTNAME, -p PORT, -u USERNAME
+     * @param args -h HOSTNAME, -p PORT, -u USERNAME, -t THREAD_COUNT*1024, -gpu CL_DEVICE_INDEX
      */
     public static void main(String[] args) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException {
         //region Command Line Arguments
@@ -83,6 +83,16 @@ public class SessionInitializer {
         portOption.setRequired(true);
         options.addOption(portOption);
 
+        Option chosenDeviceOption = new Option("gpu", "gpu", true,
+                "The device-index of the CL-device that is going to be performing the simulations.");
+        chosenDeviceOption.setRequired(false);
+        options.addOption(chosenDeviceOption);
+
+        Option devicePerformanceOption = new Option("t", "threads", true,
+                "The base amount of threads * 1024 this GPU is going to use. The maximum amount of threads that are going to be used is threads * 2048.");
+        devicePerformanceOption.setRequired(true);
+        options.addOption(devicePerformanceOption);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
@@ -99,11 +109,15 @@ public class SessionInitializer {
         String username = cmd.getOptionValue("username");
         String hostname = cmd.getOptionValue("hostname");
         int port = Integer.parseInt(cmd.getOptionValue("port"));
+        int estimateDevicePerformance = Integer.parseInt(cmd.getOptionValue("threads"));
+        int chosenDeviceIndex = cmd.getOptionValue("gpu") == null ? 0 : Integer.parseInt(cmd.getOptionValue("gpu"));
 
         //endregion
 
         var graphicsDevices = JOCLSample.getGraphicsDevices();
-        var chosenDevice = graphicsDevices.get(0);
+        var chosenDevice = graphicsDevices.get(chosenDeviceIndex);
+        chosenDevice.setEstimatePerformance(estimateDevicePerformance);
+        System.out.println(chosenDevice.toString());
 
         GameClient gameClient = new TelnetGameClient();
         gameClient.connect(hostname, port);

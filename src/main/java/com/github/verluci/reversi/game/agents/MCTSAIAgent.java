@@ -38,8 +38,10 @@ public class MCTSAIAgent extends AIAgent {
      */
     @Override
     protected Tile findOptimalMove(GameBoard board) {
+        // Retrieve all possible moves from the current board.
         var moves = board.getTilesWithState(TileState.POSSIBLE_MOVE);
 
+        // Put the moves in the following array: [ move_count, move1, move2, move3, move4, 0, 0, 0, ... ]
         int[] possibleMoves = new int[board.getXSize() * board.getYSize() + 1];
         possibleMoves[0] = moves.size();
         for (int i = 0; i < moves.size(); i++) {
@@ -47,14 +49,21 @@ public class MCTSAIAgent extends AIAgent {
             possibleMoves[i+1] = (move.getYCoordinate() * board.getXSize()) + move.getXCoordinate();
         }
 
+        // Retrieve the player tiles as a 64-bit (u)long.
         long player1 = board.getPlayerTilesLongValue(TileState.PLAYER1);
         long player2 = board.getPlayerTilesLongValue(TileState.PLAYER2);
 
-        int move = getOptimalMoveUsingOpenCL(graphicsDevice, player1, player2, possibleMoves);
+        // Choose the amount of simulations based on the current state of the game and the strength of the GraphicsDevice.
+        int threadCount = calculateThreadCount(graphicsDevice, board);
 
+        // Estimate the most optimal move with OpenCL using the provided GraphicsDevice and threadCount.
+        int move = getOptimalMoveUsingOpenCL(graphicsDevice, player1, player2, possibleMoves, threadCount);
+
+        // Convert the retrieved optimal tile-index to an x and y coordinate
         int x = move % board.getXSize();
         int y = move / board.getXSize();
 
+        // Return the estimated optimal move.
         return board.getTile(x, y);
     }
 
@@ -84,14 +93,15 @@ public class MCTSAIAgent extends AIAgent {
      * @param opponent The player2 in the OthelloGame also known as white.
      * @param possibleMoves An array of size 65 in which the first value is the count of possible moves, following all
      *                      possible moves. example: [ 4, 15, 13, 12, 8, 0, 0, 0, ... ]
+     * @param threadCount The amount of threads x 1024 that the GraphicsDevice is going to simulate.
      * @return The most optimal move the AI was able to find.
      */
-    private static int getOptimalMoveUsingOpenCL(GraphicsDevice graphicsDevice, long player, long opponent, int[] possibleMoves) {
+    private static int getOptimalMoveUsingOpenCL(GraphicsDevice graphicsDevice, long player, long opponent, int[] possibleMoves, int threadCount) {
         var platform = graphicsDevice.getPlatform_id();
         var device = graphicsDevice.getId();
 
         // The amount of threads that should be executed on the graphics-device.
-        final int NUMBER_OF_THREADS = 1600 * 1024;
+        final int NUMBER_OF_THREADS = threadCount * 1024;
         // The graphics-device should contains 64 random numbers per simulation (for every possible move 1 random number).
         final int RANDOM_NUMBER_COUNT = NUMBER_OF_THREADS * 64;
 
@@ -236,6 +246,65 @@ public class MCTSAIAgent extends AIAgent {
 
         // Returns the path with the most wins.
         return possibleMoves[largest+1];
+    }
+
+    /**
+     * This method calculates the amount of threads that can be queued based on an estimated device performance
+     * and the current state of the board (the amount of tiles occupied).
+     *
+     * The chosen thread count is based on the following formula:
+     *              y = max( sin( (-4 + x) * π) / 60 ), 0 ) + 1;
+     *
+     * This formula generates the following curve: https://www.desmos.com/calculator/ir56hhirju
+     *
+     * @param graphicsDevice The GraphicsDevice for which the amount of threads should be calculated.
+     * @param board The board on which the simulation should be performed.
+     * @return The amount of threads that can enqueued for this game-estimation.
+     */
+    private static int calculateThreadCount(GraphicsDevice graphicsDevice, GameBoard board) {
+        int estimateDevicePerformance = graphicsDevice.getEstimatePerformance();
+        int tileCount = board.countTilesWithState(TileState.PLAYER1) + board.countTilesWithState(TileState.PLAYER2);
+        int boardSize = board.getXSize() * board.getYSize() - 4;
+
+        double factor = Math.max(Math.sin(((-4 + tileCount) * Math.PI) / boardSize), 0d) + 1d;
+
+        return (int) (estimateDevicePerformance * factor);
+    }
+
+    /**
+     * This method tries to estimate the amount of threads / 1024 that can be calculated by the given GraphicsDevice within 10 seconds.
+     * @param graphicsDevice The GraphicsDevice for which the estimates should be made.
+     * @return The amount of threads / 1024 this GraphicsDevice should be able to safely perform within 10 seconds.
+     */
+    public static int estimateDevicePerformance(GraphicsDevice graphicsDevice) {
+        int THREAD_COUNT = 250;
+
+        // Start a counter.
+        long startTest = System.currentTimeMillis();
+
+        // Set the possible moves to the first 4 starting moves.
+        int[] possibleMoves = new int[65];
+        possibleMoves[0] = 4;
+        possibleMoves[1] = 19;
+        possibleMoves[2] = 26;
+        possibleMoves[3] = 37;
+        possibleMoves[4] = 44;
+
+        // Use the boards initial state (which takes to longest to simulate).
+        var player1 = Long.parseLong("0000000000000000000000000001000000001000000000000000000000000000", 2);
+        var player2 = Long.parseLong("0000000000000000000000000000100000010000000000000000000000000000", 2);
+
+        // Perform a simulation with 250 * 1024 threads.
+        var move = getOptimalMoveUsingOpenCL(graphicsDevice, player1, player2, possibleMoves, THREAD_COUNT);
+
+        // 'Stop' the counter.
+        long endTest = System.currentTimeMillis();
+
+        // Calculate the elapsed time.
+        long time = endTest - startTest;
+
+        // Try to estimate how much threads can be simulated within 10 seconds.
+        return (int) (Math.floor(10000f / time) * THREAD_COUNT);
     }
 
     /**
