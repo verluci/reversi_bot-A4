@@ -4,9 +4,8 @@ import com.github.verluci.reversi.game.*;
 import com.github.verluci.reversi.gpgpu.GraphicsDevice;
 import org.jocl.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -161,8 +160,8 @@ public class MCTSAIAgent extends AIAgent {
 
         String content = "";
         try {
-            File file = new File(ClassLoader.getSystemResource("mcts_reversi_kernel.cl").getFile());
-            content = new String(Files.readAllBytes(file.toPath()));
+            InputStream in = MCTSAIAgent.class.getResourceAsStream("/mcts_reversi_kernel.cl");
+            content = new String(in.readAllBytes());
         }
         catch (NullPointerException | IOException e) {
             e.printStackTrace();
