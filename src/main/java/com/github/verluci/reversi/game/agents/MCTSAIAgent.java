@@ -50,8 +50,8 @@ public class MCTSAIAgent extends AIAgent {
         }
 
         // Retrieve the player tiles as a 64-bit (u)long.
-        long player1 = board.getPlayerTilesLongValue(TileState.PLAYER1);
-        long player2 = board.getPlayerTilesLongValue(TileState.PLAYER2);
+        long player1 = board.getPlayerTilesLongValue(Game.getTileStateUsingPlayer(player));
+        long player2 = board.getPlayerTilesLongValue(Game.getInvertedTileStateUsingPlayer(player));
 
         // Choose the amount of simulations based on the current state of the game and the strength of the GraphicsDevice.
         int threadCount = calculateThreadCount(graphicsDevice, board);

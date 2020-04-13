@@ -387,7 +387,7 @@ public abstract class Game {
      * @param player The player you want to get the opposing player's matching TileState from.
      * @return the opposing player's TileState.
      */
-    protected static TileState getInvertedTileStateUsingPlayer(Player player) {
+    public static TileState getInvertedTileStateUsingPlayer(Player player) {
         switch (player) {
             case PLAYER1:
                 return TileState.PLAYER2;
@@ -402,7 +402,7 @@ public abstract class Game {
      * @param player The player the matching TileState should be retrieved from.
      * @return the player's TileState.
      */
-    protected static TileState getTileStateUsingPlayer(Player player) {
+    public static TileState getTileStateUsingPlayer(Player player) {
         switch (player) {
             case PLAYER1:
                 return TileState.PLAYER1;
@@ -417,7 +417,7 @@ public abstract class Game {
      * @param player The player you want to get the opposite player for.
      * @return The opposite player of the given player.
      */
-    protected static Player getOppositePlayer(Player player) {
+    public static Player getOppositePlayer(Player player) {
         switch (player) {
             case PLAYER1:
                 return Player.PLAYER2;
