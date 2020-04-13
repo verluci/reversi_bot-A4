@@ -38,7 +38,7 @@ int bit_count(unsigned long value)
  */
 bool is_bit_set(unsigned long value, int index)
 {
-    return (value & (1ULL << index));
+    return (value & (1UL << index));
 }
 
 /**
@@ -46,7 +46,7 @@ bool is_bit_set(unsigned long value, int index)
  */
 bool is_valid_board(unsigned long player, unsigned long opponent)
 {
-    return (player & opponent) == 0ULL;
+    return (player & opponent) == 0UL;
 }
 
 /**
@@ -158,11 +158,11 @@ void pass_turn(unsigned long players[])
  */
 unsigned long get_flip_mask(int tile, int direction_row, int direction_column, unsigned long player, unsigned long opponent)
 {
-    unsigned long result = 0ULL;
+    unsigned long result = 0UL;
     int current_tile = tile;
 
     while (get_tile_type(current_tile, player, opponent) == OPPONENT) {
-        result = result | (1ULL << current_tile);
+        result = result | (1UL << current_tile);
 
         int row = current_tile / 8;
         int column = current_tile % 8;
@@ -185,7 +185,7 @@ void make_move(int tile, unsigned long players[])
     int row = tile / 8;
     int column = tile % 8;
 
-    unsigned long flip_mask = 0ULL;
+    unsigned long flip_mask = 0UL;
 
     //                            NW,  N, NE,  W,  E, SW,  S, SE
     int row_directions[] =      { -1, -1, -1,  0,  0,  1,  1,  1 };
@@ -210,7 +210,7 @@ void make_move(int tile, unsigned long players[])
     }
 
     unsigned long new_player_pieces = players[1] ^ flip_mask;
-    unsigned long new_opponent_pieces = (players[0] ^ flip_mask) | (1ULL << tile);
+    unsigned long new_opponent_pieces = (players[0] ^ flip_mask) | (1UL << tile);
 
     players[0] = new_player_pieces;
     players[1] = new_opponent_pieces;
