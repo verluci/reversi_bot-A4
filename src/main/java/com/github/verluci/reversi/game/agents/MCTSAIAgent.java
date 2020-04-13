@@ -86,7 +86,7 @@ public class MCTSAIAgent extends AIAgent {
      *
      * When the simulations are done, the results are copied into the resultArray on the host-machine and the
      * allocated buffers will be released on the GraphicsDevice. The host machine will then sum all wins/draws/loses of a
-     * selected path and will choose the path with the least amount of loses.
+     * selected path and will choose the path with the most wins.
      *
      * @param graphicsDevice The graphics-device on which the simulations should be performed.
      * @param player The player1 in the OthelloGame also known as black.
@@ -237,15 +237,15 @@ public class MCTSAIAgent extends AIAgent {
             }
         }
 
-        // The path with the least amount of loses will be chosen.
-        int smallest = 0;
-        for (int i = 1; i < lose_counter.length; i++) {
-            if (lose_counter[i] < lose_counter[smallest])
-                smallest = i;
+        // The path with the most wins will be chosen as a move.
+        int largest = 0;
+        for (int i = 1; i < win_counter.length; i++) {
+            if (win_counter[i] > win_counter[largest])
+                largest = i;
         }
 
-        // Returns the path with the least amount of loses.
-        return possibleMoves[smallest+1];
+        // Returns the path with the most wins.
+        return possibleMoves[largest+1];
     }
 
     /**
