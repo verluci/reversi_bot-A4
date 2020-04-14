@@ -22,7 +22,16 @@ import javafx.stage.Stage;
 
 import com.github.verluci.reversi.networking.clients.GameClient;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+
+import static java.lang.Integer.parseInt;
 
 
 /**
@@ -32,7 +41,7 @@ public class App extends Application {
 
     GraphicsDevice selectedGraphicsDevice;
 
-    private Stage primaryStage;
+    public Stage primaryStage;
 
     public GameClient gameClient;
     public com.github.verluci.reversi.networking.types.Player localPlayer;
@@ -48,9 +57,12 @@ public class App extends Application {
         return instance;
     }
 
+    public Properties properties;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-            this.primaryStage = primaryStage;
+        setupConfig();
+        this.primaryStage = primaryStage;
         GPUSelectionBox gpuSelectionBox = new GPUSelectionBox();
 
         var javaVersion = SystemInfo.javaVersion();
@@ -90,7 +102,7 @@ public class App extends Application {
 
     public void initializeConnection(String name) throws GameClientExceptions.ConnectionException, GameClientExceptions.LoginException {
         gameClient = new TelnetGameClient();
-        gameClient.connect("localhost", 7789);
+        gameClient.connect(properties.getProperty("ipAddress"), parseInt(properties.getProperty("port")));
         this.localPlayer = new com.github.verluci.reversi.networking.types.Player(name);
         gameClient.login(name);
         player1 = new LocalPlayerAgent();
@@ -101,5 +113,42 @@ public class App extends Application {
         Parent root = loader.load();
         Scene newScene = new Scene(root);
         primaryStage.setScene(newScene);
+    }
+
+    private void setupConfig() {
+        Path configFileLocation = Paths.get(System.getProperty("user.home"), ".verluci-reversi", "config.properties");
+        if(!Files.exists(configFileLocation.getParent())){
+            try {
+                Files.createDirectory(configFileLocation.getParent());
+            } catch (Exception e){
+                System.out.println("Something went wrong");
+            }
+            try (
+                BufferedReader in = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/config.properties")));
+                BufferedWriter out = Files.newBufferedWriter(configFileLocation);
+            ){
+
+                in.lines().forEach(line -> {
+                    try {
+                        out.append(line);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        out.newLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                System.out.println("Something went wrong");
+            }
+        }
+        properties = new Properties();
+        try (BufferedReader in = Files.newBufferedReader(configFileLocation)) {
+            properties.load(in);
+        } catch (IOException exc) {
+            System.out.println("Something went wrong");
+        }
     }
 }
