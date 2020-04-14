@@ -1,6 +1,7 @@
 package com.github.verluci.reversi.gui;
 
 import com.github.verluci.reversi.App;
+import com.github.verluci.reversi.networking.types.Difficulty;
 import com.github.verluci.reversi.networking.types.Player;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -8,12 +9,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-
-import com.github.verluci.reversi.game.TicTacToeGame;
 
 import java.io.IOException;
 
@@ -61,22 +63,79 @@ public class LobbyController extends AnchorPane {
     }
 
     @FXML
-    public void othelloVsAI(ActionEvent event){
-
+    public void othelloVsPlayer(ActionEvent event) {
+        navigateOthello( true, Difficulty.MAKKELIJK);
     }
 
     @FXML
-    public void othelloVsPlayer(ActionEvent event){
-
+    public void othelloVsMakkelijk(ActionEvent event) {
+         navigateOthello(false, Difficulty.MAKKELIJK);
     }
 
     @FXML
-    public void tickVsPlayer(ActionEvent event){
-
+    public void othelloVsNormaal(ActionEvent event) {
+        navigateOthello(false, Difficulty.NORMAAL);
     }
 
     @FXML
-    public void tickVsAI(ActionEvent event) throws IOException {
-        application.getInstance().navigateScene("boterkaaseneieren");
+    public void othelloVsMoeilijk(ActionEvent event) {
+        navigateOthello(false, Difficulty.MOEILIJK);
+    }
+
+    @FXML
+    public void tickVsPlayer(ActionEvent event) {
+        navigateTickTackToe( true, Difficulty.MAKKELIJK);
+    }
+
+    @FXML
+    public void tickVsMakkelijk(ActionEvent event) {
+        navigateTickTackToe(false, Difficulty.MAKKELIJK);
+    }
+
+    @FXML
+    public void tickVsNormaal(ActionEvent event) {
+        navigateTickTackToe(false, Difficulty.NORMAAL);
+    }
+
+    public void navigateOthello(boolean online, Difficulty difficulty){
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("othello.fxml"));
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        OthelloController controller = loader.getController();
+
+
+        if(online) {
+            controller.setupMultiplayerGame();
+        } else {
+            controller.setupAIGame(difficulty);
+        }
+        Scene newScene = new Scene(root);
+        application.getInstance().primaryStage.setScene(newScene);
+    }
+
+    public void navigateTickTackToe(boolean online, Difficulty difficulty){
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("boterkaaseneieren.fxml"));
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BoterKaasEnEierenController controller = loader.getController();
+
+
+        if(online) {
+            controller.setupMultiplayerGame();
+        } else {
+            controller.setupAIGame(difficulty);
+        }
+        Scene newScene = new Scene(root);
+        application.getInstance().primaryStage.setScene(newScene);
     }
 }

@@ -36,4 +36,8 @@ public class LoginController extends AnchorPane {
             loginError.setText("Deze naam is al in gebruik");
         }
     }
+
+    public void goToSettings(ActionEvent actionEvent) throws IOException {
+        application.getInstance().navigateScene("settings");
+    }
 }

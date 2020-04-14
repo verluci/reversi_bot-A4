@@ -2,10 +2,7 @@ package com.github.verluci.reversi.gui;
 
 import com.github.verluci.reversi.App;
 import com.github.verluci.reversi.game.*;
-import com.github.verluci.reversi.game.agents.Agent;
-import com.github.verluci.reversi.game.agents.FirstMoveAIAgent;
-import com.github.verluci.reversi.game.agents.NetworkAgent;
-import com.github.verluci.reversi.game.agents.RandomMoveAIAgent;
+import com.github.verluci.reversi.game.agents.*;
 import com.github.verluci.reversi.networking.GameClientExceptions;
 import com.github.verluci.reversi.networking.clients.GameClient;
 import com.github.verluci.reversi.networking.types.Difficulty;
@@ -14,17 +11,19 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
-import java.io.IOException;
+import static com.github.verluci.reversi.game.Game.Player.PLAYER1;
+import static com.github.verluci.reversi.game.Game.Player.PLAYER2;
 
-public class BoterKaasEnEierenController extends AnchorPane {
+public class OthelloController extends AnchorPane {
     private App application;
     Agent player1;
     Agent player2;
@@ -33,34 +32,36 @@ public class BoterKaasEnEierenController extends AnchorPane {
 
     SessionInitializer session;
 
-    boolean online;
-
     Game game;
 
     private GameClient gameClient;
 
     @FXML
-    private GridPane bkepane;
+    private GridPane othpane;
 
     @FXML
     private Text status;
 
+    @FXML
+    private Text wit;
+
+    @FXML
+    private Text zwart;
+
     public void setApp(App app){
         this.application = app;
     }
-
-    public void initData(boolean online)  {
-
-    }
-
     private void updateGameBoard(){
+        int witScore = 0;
+        int zwartScore = 0;
+
         Tile[][] tiles = game.getBoard().getTiles();
-        bkepane.getChildren().retainAll(bkepane.getChildren().get(0));
+        othpane.getChildren().retainAll(othpane.getChildren().get(0));
         System.out.println(game.getBoard().toString());
-        for(int i = 0; i < tiles.length; i++)
-            for(int j = 0; j<tiles[i].length; j++) {
-                if(tiles[i][j].getState() == TileState.POSSIBLE_MOVE) {
-                    if(game.getCurrentPlayer().equals(Game.Player.PLAYER1)) {
+        for(int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                if (tiles[i][j].getState() == TileState.POSSIBLE_MOVE) {
+                    if (game.getCurrentPlayer().equals(PLAYER1)) {
                         int x = i;
                         int y = j;
 
@@ -69,66 +70,59 @@ public class BoterKaasEnEierenController extends AnchorPane {
                         button.setOnAction(new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent e) {
-                                game.tryMove(Game.Player.PLAYER1, x, y);
+                                game.tryMove(PLAYER1, x, y);
                                 updateGameBoard();
                             }
                         });
-                        bkepane.add(button, i, j);
+                        othpane.add(button, i, j);
                     }
-                } else if (tiles[i][j].getState() == TileState.PLAYER1){
+                } else if (tiles[i][j].getState() == TileState.PLAYER1) {
+                    witScore++;
                     Circle circle = new Circle();
-                    circle.setRadius(95);
-                    circle.setStrokeWidth(95);
-                    bkepane.add(circle, i, j);
-                } else if (tiles[i][j].getState() == TileState.PLAYER2){
-                    Line line1 = new Line();
-                    line1.setStartX(5);
-                    line1.setStartY(5);
-                    line1.setStartX(195);
-                    line1.setStartY(195);
-                    line1.setStrokeWidth(5);
-                    Line line2 = new Line();
-                    line2.setStartX(195);
-                    line2.setStartY(5);
-                    line2.setEndX(5);
-                    line2.setEndY(195);
-                    line2.setStrokeWidth(5);
-                    bkepane.add(line1, i, j);
-                    bkepane.add(line2, i, j);
-
+                    circle.setRadius(20);
+                    circle.setStrokeWidth(10);
+                    circle.setFill(Color.WHITE);
+                    othpane.add(circle, i, j);
+                } else if (tiles[i][j].getState() == TileState.PLAYER2) {
+                    zwartScore++;
+                    Circle circle = new Circle();
+                    circle.setRadius(20);
+                    circle.setStrokeWidth(10);
+                    othpane.add(circle, i, j);
                 }
             }
+        }
+        wit.setText("Wit: " + witScore);
+        zwart.setText("Zwart: " + zwartScore);
     }
 
     public void setupAIGame(Difficulty difficulty){
-        status.setText("Jouw spel tegen de computer");
         if(difficulty == Difficulty.MAKKELIJK){
             player2 = new FirstMoveAIAgent();
         }else if (difficulty == Difficulty.NORMAAL) {
             player2 = new RandomMoveAIAgent();
+        }else if (difficulty == Difficulty.MOEILIJK){
+            //player2 = new MCTSAIAgent();
         }
-        session = new SessionInitializer(player1, player2, TicTacToeGame.class);
+        session = new SessionInitializer(player1, player2, OthelloGame.class);
         startGame();
     }
 
-    public void setupMultiplayerGame() {
+    public void setupMultiplayerGame(){
         status.setText("Er word een spel gezocht");
-        gameClient = application.getInstance().gameClient;
-        localPlayer = application.getInstance().localPlayer;
-        player1 = application.getInstance().player1;
         player2 = new NetworkAgent(gameClient, localPlayer);
-        session = new SessionInitializer(player1, player2, TicTacToeGame.class);
-
+        session = new SessionInitializer(player1, player2, OthelloGame.class);
         try {
-            gameClient.subscribeToGame("Tic-tac-toe");
-        } catch(Exception e)
-        {
-            System.out.println("Something went wrong");
+            gameClient.subscribeToGame("Reversi");
+        }catch(Exception e){
+            System.out.println(e);
         }
         startGame();
     }
 
     private void startGame(){
+        wit.setText("Wit: 0");
+        zwart.setText("Zwart: 0");
         Thread sessionThread = new Thread(() -> {
             if(startingPlayer[0].equals(localPlayer)) {
                 session.start(player1);
@@ -146,7 +140,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
             });
 
             game.onGameStart(player -> {
-                status.setText("Je speelt Boter Kaas en Eieren!");
+                status.setText("Je speelt Othello!");
                 Platform.runLater(this::updateGameBoard);
             });
 
@@ -162,4 +156,13 @@ public class BoterKaasEnEierenController extends AnchorPane {
             sessionThread.interrupt();
         });
     }
+
+    public void initialize() throws GameClientExceptions.SubscribeException {
+        othpane.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        gameClient = application.getInstance().gameClient;
+        localPlayer = application.getInstance().localPlayer;
+        player1 = application.getInstance().player1;
+    }
 }
+
+
