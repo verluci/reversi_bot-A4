@@ -57,6 +57,16 @@ public class App extends Application {
         setupConfig();
         this.primaryStage = primaryStage;
 
+        this.primaryStage.setOnCloseRequest(windowEvent -> {
+            if(gameClient != null && gameClient.getConnected()) {
+                try {
+                    gameClient.disconnect();
+                } catch (GameClientExceptions.ConnectionException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("login.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
