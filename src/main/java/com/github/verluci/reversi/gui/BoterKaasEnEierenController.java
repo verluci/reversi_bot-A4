@@ -21,7 +21,6 @@ import javafx.scene.text.Text;
 import java.io.IOException;
 
 public class BoterKaasEnEierenController extends AnchorPane {
-    private App application;
     LocalUIPlayerAgent player1;
     Agent player2;
     com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
@@ -44,14 +43,10 @@ public class BoterKaasEnEierenController extends AnchorPane {
     @FXML
     private Button exitButton;
 
-    public void setApp(App app){
-        this.application = app;
-    }
-
     public void initialize()  {
         exitButton.setVisible(false);
-        gameClient = application.getInstance().gameClient;
-        localPlayer = application.getInstance().localPlayer;
+        gameClient = App.getInstance().gameClient;
+        localPlayer = App.getInstance().localPlayer;
     }
 
     private void updateGameBoard(){
@@ -178,7 +173,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
         }
         game.stopGame(Game.Player.PLAYER2);
         try {
-            application.getInstance().navigateScene("lobby");
+            App.getInstance().navigateScene("lobby");
         } catch (IOException e) {
             e.printStackTrace();
         }

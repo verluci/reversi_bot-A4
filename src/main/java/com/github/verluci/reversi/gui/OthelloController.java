@@ -20,7 +20,6 @@ import javafx.scene.text.Text;
 
 
 public class OthelloController extends AnchorPane {
-    private App application;
     LocalUIPlayerAgent player1;
     Agent player2;
     private com.github.verluci.reversi.networking.types.Player localPlayer;
@@ -50,7 +49,7 @@ public class OthelloController extends AnchorPane {
     public void initialize() {
         BackgroundImage backgroundImage = new BackgroundImage(new Image("/hout.jpg"), BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT,BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT );
         othpane.setBackground(new Background(backgroundImage));
-        localPlayer = application.getInstance().localPlayer;
+        localPlayer = App.getInstance().localPlayer;
         player1 = new LocalUIPlayerAgent();
         exitButton.setVisible(false);
     }
@@ -128,7 +127,7 @@ public class OthelloController extends AnchorPane {
 
     public void setupMultiplayerGame(){
         status.setText("Er word een spel gezocht");
-        gameClient = application.getInstance().gameClient;
+        gameClient = App.getInstance().gameClient;
         player2 = new NetworkAgent(gameClient, localPlayer);
         session = new SessionInitializer(player1, player2, OthelloGame.class);
         com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
@@ -183,13 +182,14 @@ public class OthelloController extends AnchorPane {
 
     public void exit(ActionEvent actionEvent) {
         try {
-            gameClient.forfeit();
+            if(gameClient != null)
+                gameClient.forfeit();
         } catch (Exception e) {
             e.printStackTrace();
         }
         game.stopGame(Game.Player.PLAYER2);
         try {
-            application.getInstance().navigateScene("lobby");
+            App.getInstance().navigateScene("lobby");
         } catch (Exception e) {
             e.printStackTrace();
         }
