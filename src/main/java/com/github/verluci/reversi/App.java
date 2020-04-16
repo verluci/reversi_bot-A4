@@ -139,6 +139,7 @@ public class App extends Application {
             for (GraphicsDevice device : devices) {
                 if (device.getName().equals(properties.getProperty("gpuName"))) {
                     selectedGraphicsDevice = device;
+                    device.setEstimatePerformance(Integer.parseInt(properties.getProperty("threads")));
                     foundDevice = true;
                     break;
                 }

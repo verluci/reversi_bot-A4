@@ -72,12 +72,15 @@ public class SettingsController extends AnchorPane {
         Path configFileLocation = Paths.get(System.getProperty("user.home"), ".verluci-reversi", "config.properties");
         BufferedWriter out = Files.newBufferedWriter(configFileLocation);
 
+
         properties.setProperty("ipAddress", ipAddress.getText().trim());
         properties.setProperty("port", port.getText());
         properties.setProperty("threads", threads.getText());
         properties.setProperty("turnTime", turnTime.getText());
         properties.setProperty("gpuName", gpuName.getText());
         properties.store(out, null);
+
+        App.getInstance().getSelectedGraphicsDevice().setEstimatePerformance(Integer.parseInt(properties.getProperty("threads")));
 
         App.getInstance().navigateScene("login");
     }
