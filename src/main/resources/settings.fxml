@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.SettingsController">
+   <children>
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="376.0" layoutY="223.0" prefHeight="17.0" prefWidth="131.0" text="Server IP" textAlignment="RIGHT" />
+      <Label alignment="CENTER_RIGHT" layoutX="407.0" layoutY="269.0" prefHeight="17.0" prefWidth="104.0" text="Server poort" textAlignment="RIGHT" />
+      <Label alignment="CENTER_RIGHT" layoutX="380.0" layoutY="312.0" prefHeight="17.0" prefWidth="131.0" text="Aantal threads" textAlignment="RIGHT" />
+      <TextField fx:id="ipAddress" layoutX="536.0" layoutY="219.0" prefHeight="25.0" prefWidth="209.0" />
+      <TextField fx:id="port" layoutX="536.0" layoutY="265.0" prefHeight="25.0" prefWidth="209.0" />
+      <TextField fx:id="threads" layoutX="536.0" layoutY="308.0" prefHeight="25.0" prefWidth="209.0" />
+      <Text layoutX="432.0" layoutY="365.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Het aantal threads bepaalt de snelheid en moeilijkheid van de AI. Hoe meer threads, hoe langer deze nadenkt over zijn opties en hoe moeilijker deze te verslaan is. Op een zwak systeem kan de AI in 3 seconden 300 threads doen. Op een sterk systeem met een videokaart kan deze in 3 seconden zo'n 2500 threads berekenen." wrappingWidth="380.13671875" />
+      <Button layoutX="555.0" layoutY="536.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="170.0" text="Opslaan" onAction="#opslaan"/>
+   </children>
+</AnchorPane>
