@@ -17,7 +17,7 @@ public class GPUSelectionBox extends Stage {
 
     private GraphicsDevice selectedGraphicsDevice;
 
-    public GPUSelectionBox() {
+    public GPUSelectionBox(float time) {
         TableColumn<GraphicsDevice, DeviceType> typeColumn = new TableColumn<>("Type");
         typeColumn.setMinWidth(50);
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
@@ -56,9 +56,7 @@ public class GPUSelectionBox extends Stage {
         gpuCalculationTest.setDefaultButton(true);
         gpuCalculationTest.setOnAction(e -> {
             var graphicsDevice = graphicsDeviceTable.getSelectionModel().getSelectedItem();
-            int estimatePerformance = MCTSHelper.estimateDevicePerformance(graphicsDevice);
-
-            System.out.println(estimatePerformance);
+            int estimatePerformance = MCTSHelper.estimateDevicePerformance(graphicsDevice, time);
 
             if(estimatePerformance > 0) {
                 selectButton.setDisable(false);

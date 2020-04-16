@@ -1,6 +1,7 @@
 package com.github.verluci.reversi.gui;
 
 import com.github.verluci.reversi.App;
+import com.github.verluci.reversi.gpgpu.GPUSelectionBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -45,7 +46,7 @@ public class SettingsController extends AnchorPane {
         properties.setProperty("ipAddress", ipAddress.getText().trim());
         properties.setProperty("port", port.getText().trim());
         properties.setProperty("threads", threads.getText());
-        properties.setProperty("turnTime", threads.getText());
+        properties.setProperty("turnTime", turnTime.getText());
         properties.store(out, null);
 
         App.getInstance().navigateScene("login");
@@ -53,6 +54,12 @@ public class SettingsController extends AnchorPane {
     }
 
     public void chooseGPU(ActionEvent actionEvent) {
+        GPUSelectionBox gpuSelectionBox = new GPUSelectionBox(Float.parseFloat(turnTime.getText()));
+        var selectedGraphicsDevice = gpuSelectionBox.selectGraphicsDevice();
+        var selectedGpuString = selectedGraphicsDevice != null ? selectedGraphicsDevice.getName() : "";
 
+        properties.setProperty("threads", String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
+        threads.setText(String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
+        properties.setProperty("gpuName", selectedGpuString);
     }
 }
