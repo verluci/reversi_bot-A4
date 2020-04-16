@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
@@ -64,16 +65,16 @@ public class BoterKaasEnEierenController extends AnchorPane {
                         int x = i;
                         int y = j;
 
-                        Button button = new Button();
-
-                        button.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent e) {
-                                player1.doMove(x, y);
-                                updateGameBoard();
-                            }
+                        Circle circle = new Circle();
+                        circle.setRadius(95);
+                        circle.setStrokeWidth(95);
+                        circle.setOpacity(0.1);
+                        circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                            player1.doMove( x, y);
+                            updateGameBoard();
                         });
-                        bkepane.add(button, i, j);
+
+                        bkepane.add(circle, i, j);
                     }
                 } else if (tiles[i][j].getState() == TileState.PLAYER1){
                     Circle circle = new Circle();
@@ -169,10 +170,13 @@ public class BoterKaasEnEierenController extends AnchorPane {
 
     public void exit(ActionEvent actionEvent) {
         try {
-            gameClient.forfeit();
+            if (gameClient != null) {
+                gameClient.forfeit();
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
+        game.stopGame(Game.Player.PLAYER2);
         try {
             application.getInstance().navigateScene("lobby");
         } catch (IOException e) {
