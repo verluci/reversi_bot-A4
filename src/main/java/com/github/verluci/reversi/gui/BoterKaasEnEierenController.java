@@ -2,20 +2,15 @@ package com.github.verluci.reversi.gui;
 
 import com.github.verluci.reversi.App;
 import com.github.verluci.reversi.game.*;
-import com.github.verluci.reversi.game.agents.Agent;
-import com.github.verluci.reversi.game.agents.FirstMoveAIAgent;
-import com.github.verluci.reversi.game.agents.NetworkAgent;
-import com.github.verluci.reversi.game.agents.RandomMoveAIAgent;
-import com.github.verluci.reversi.networking.GameClientExceptions;
+import com.github.verluci.reversi.game.agents.*;
+import com.github.verluci.reversi.game.events.TurnListener;
 import com.github.verluci.reversi.networking.clients.GameClient;
 import com.github.verluci.reversi.networking.types.Difficulty;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
@@ -26,14 +21,14 @@ import java.io.IOException;
 
 public class BoterKaasEnEierenController extends AnchorPane {
     private App application;
-    Agent player1;
+    LocalUIPlayerAgent player1;
     Agent player2;
     com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
     private com.github.verluci.reversi.networking.types.Player localPlayer;
 
     SessionInitializer session;
 
-    boolean online;
+    Thread sessionThread;
 
     Game game;
 
@@ -45,12 +40,17 @@ public class BoterKaasEnEierenController extends AnchorPane {
     @FXML
     private Text status;
 
+    @FXML
+    private Button exitButton;
+
     public void setApp(App app){
         this.application = app;
     }
 
-    public void initData(boolean online)  {
-
+    public void initialize()  {
+        exitButton.setVisible(false);
+        gameClient = application.getInstance().gameClient;
+        localPlayer = application.getInstance().localPlayer;
     }
 
     private void updateGameBoard(){
@@ -69,7 +69,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
                         button.setOnAction(new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent e) {
-                                game.tryMove(Game.Player.PLAYER1, x, y);
+                                player1.doMove(x, y);
                                 updateGameBoard();
                             }
                         });
@@ -102,20 +102,22 @@ public class BoterKaasEnEierenController extends AnchorPane {
 
     public void setupAIGame(Difficulty difficulty){
         status.setText("Jouw spel tegen de computer");
+        player1 = new LocalUIPlayerAgent();
         if(difficulty == Difficulty.MAKKELIJK){
             player2 = new FirstMoveAIAgent();
-        }else if (difficulty == Difficulty.NORMAAL) {
+        }else {
             player2 = new RandomMoveAIAgent();
         }
         session = new SessionInitializer(player1, player2, TicTacToeGame.class);
+        sessionThread = new Thread(() -> {
+           session.start(player1);
+        });
         startGame();
     }
 
     public void setupMultiplayerGame() {
         status.setText("Er word een spel gezocht");
-        gameClient = application.getInstance().gameClient;
-        localPlayer = application.getInstance().localPlayer;
-        player1 = application.getInstance().player1;
+        player1 = new LocalUIPlayerAgent();
         player2 = new NetworkAgent(gameClient, localPlayer);
         session = new SessionInitializer(player1, player2, TicTacToeGame.class);
 
@@ -125,11 +127,8 @@ public class BoterKaasEnEierenController extends AnchorPane {
         {
             System.out.println("Something went wrong");
         }
-        startGame();
-    }
 
-    private void startGame(){
-        Thread sessionThread = new Thread(() -> {
+        sessionThread = new Thread(() -> {
             if(startingPlayer[0].equals(localPlayer)) {
                 session.start(player1);
             }
@@ -139,27 +138,46 @@ public class BoterKaasEnEierenController extends AnchorPane {
         });
 
         gameClient.onGameStart(listener -> {
-            game = session.getGame();
-
-            game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
-                status.setText("Het spel is geindigd! " + winner.name() + " heeft gewonnen");
-            });
-
-            game.onGameStart(player -> {
-                status.setText("Je speelt Boter Kaas en Eieren!");
-                Platform.runLater(this::updateGameBoard);
-            });
-
-            game.onMove((mover, xPosition, yPosition) -> {
-                Platform.runLater(this::updateGameBoard);
-            });
-
             startingPlayer[0] = listener.getStartingPlayer();
-            sessionThread.start();
+            startGame();
         });
 
         gameClient.onGameEnd(listener -> {
             sessionThread.interrupt();
         });
+    }
+
+    private void startGame(){
+        game = session.getGame();
+
+        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
+            status.setText("Het spel is geindigd! " + winner.name() + " heeft gewonnen");
+        });
+
+        game.onGameStart(player -> {
+            status.setText("Je speelt Boter Kaas en Eieren!");
+            exitButton.setVisible(true);
+            Platform.runLater(this::updateGameBoard);
+        });
+
+        game.onNextPlayer(player -> {
+            Platform.runLater(this::updateGameBoard);
+        });
+
+        sessionThread.start();
+    }
+
+    public void exit(ActionEvent actionEvent) {
+        try {
+            gameClient.forfeit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            application.getInstance().navigateScene("lobby");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
