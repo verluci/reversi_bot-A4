@@ -2,6 +2,8 @@ package com.github.verluci.reversi.gui;
 
 import com.github.verluci.reversi.App;
 import com.github.verluci.reversi.gpgpu.GPUSelectionBox;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -27,6 +29,33 @@ public class SettingsController extends AnchorPane {
     public void initialize(){
         findProperties();
         System.out.println();
+        port.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    port.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+        threads.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    threads.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+        turnTime.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    turnTime.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
     }
 
     private void findProperties(){
@@ -44,9 +73,10 @@ public class SettingsController extends AnchorPane {
         BufferedWriter out = Files.newBufferedWriter(configFileLocation);
 
         properties.setProperty("ipAddress", ipAddress.getText().trim());
-        properties.setProperty("port", port.getText().trim());
+        properties.setProperty("port", port.getText());
         properties.setProperty("threads", threads.getText());
         properties.setProperty("turnTime", turnTime.getText());
+        properties.setProperty("gpuName", gpuName.getText());
         properties.store(out, null);
 
         App.getInstance().navigateScene("login");
