@@ -52,7 +52,6 @@ public class BoterKaasEnEierenController extends AnchorPane {
     private void updateGameBoard(){
         Tile[][] tiles = game.getBoard().getTiles();
         bkepane.getChildren().retainAll(bkepane.getChildren().get(0));
-        System.out.println(game.getBoard().toString());
         for(int i = 0; i < tiles.length; i++)
             for(int j = 0; j<tiles[i].length; j++) {
                 if(tiles[i][j].getState() == TileState.POSSIBLE_MOVE) {
@@ -66,7 +65,6 @@ public class BoterKaasEnEierenController extends AnchorPane {
                         circle.setOpacity(0.1);
                         circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                             player1.doMove( x, y);
-                            updateGameBoard();
                         });
 
                         bkepane.add(circle, i, j);
@@ -157,6 +155,10 @@ public class BoterKaasEnEierenController extends AnchorPane {
         });
 
         game.onNextPlayer(player -> {
+            Platform.runLater(this::updateGameBoard);
+        });
+
+        game.onMove((mover, xPosition, yPosition) -> {
             Platform.runLater(this::updateGameBoard);
         });
 
