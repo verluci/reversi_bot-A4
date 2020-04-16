@@ -80,7 +80,6 @@ public class SettingsController extends AnchorPane {
         properties.store(out, null);
 
         App.getInstance().navigateScene("login");
-
     }
 
     public void chooseGPU(ActionEvent actionEvent) {
@@ -88,8 +87,11 @@ public class SettingsController extends AnchorPane {
         var selectedGraphicsDevice = gpuSelectionBox.selectGraphicsDevice();
         var selectedGpuString = selectedGraphicsDevice != null ? selectedGraphicsDevice.getName() : "";
 
+        App.getInstance().setSelectedGraphicsDevice(selectedGraphicsDevice);
+
         properties.setProperty("threads", String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
         threads.setText(String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
+        gpuName.setText(selectedGpuString);
         properties.setProperty("gpuName", selectedGpuString);
     }
 }
