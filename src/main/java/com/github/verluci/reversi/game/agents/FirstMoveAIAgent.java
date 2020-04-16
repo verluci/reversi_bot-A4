@@ -14,6 +14,11 @@ public class FirstMoveAIAgent extends AIAgent {
      */
     @Override
     protected Tile findOptimalMove(GameBoard board) {
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         var possibleMoves = board.getTilesWithState(TileState.POSSIBLE_MOVE);
         return possibleMoves.get(0);
     }

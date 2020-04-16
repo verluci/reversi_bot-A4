@@ -56,7 +56,7 @@ public class GPUSelectionBox extends Stage {
         gpuCalculationTest.setDefaultButton(true);
         gpuCalculationTest.setOnAction(e -> {
             var graphicsDevice = graphicsDeviceTable.getSelectionModel().getSelectedItem();
-            int estimatePerformance = MCTSAIAgent.estimateDevicePerformance(graphicsDevice);
+            int estimatePerformance = MCTSHelper.estimateDevicePerformance(graphicsDevice);
 
             System.out.println(estimatePerformance);
 

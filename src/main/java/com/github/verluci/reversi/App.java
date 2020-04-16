@@ -56,6 +56,7 @@ public class App extends Application {
     public void start(Stage primaryStage) throws Exception {
         setupConfig();
         this.primaryStage = primaryStage;
+        this.primaryStage.setResizable(false);
 
         this.primaryStage.setOnCloseRequest(windowEvent -> {
             if(gameClient != null && gameClient.getConnected()) {
