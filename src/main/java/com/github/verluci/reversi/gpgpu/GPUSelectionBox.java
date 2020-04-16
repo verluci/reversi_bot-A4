@@ -1,5 +1,6 @@
 package com.github.verluci.reversi.gpgpu;
 
+import com.github.verluci.reversi.game.agents.MCTSAIAgent;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
@@ -47,12 +48,31 @@ public class GPUSelectionBox extends Stage {
 
         Button selectButton = new Button("Select");
         selectButton.setDisable(true);
-        selectButton.setDefaultButton(true);
 
         Button cancelButton = new Button("Cancel");
 
+        Button gpuCalculationTest = new Button("Test OpenCL Device");
+        gpuCalculationTest.setDisable(true);
+        gpuCalculationTest.setDefaultButton(true);
+        gpuCalculationTest.setOnAction(e -> {
+            var graphicsDevice = graphicsDeviceTable.getSelectionModel().getSelectedItem();
+            int estimatePerformance = MCTSAIAgent.estimateDevicePerformance(graphicsDevice);
+
+            System.out.println(estimatePerformance);
+
+            if(estimatePerformance > 0) {
+                selectButton.setDisable(false);
+                gpuCalculationTest.setText("PASSED");
+                graphicsDevice.setEstimatePerformance(estimatePerformance);
+            } else {
+                gpuCalculationTest.setText("FAILED");
+            }
+
+            gpuCalculationTest.setDisable(true);
+        });
+
         ButtonBar buttonBar = new ButtonBar();
-        buttonBar.getButtons().addAll(cancelButton, selectButton);
+        buttonBar.getButtons().addAll(cancelButton, gpuCalculationTest, selectButton);
 
         graphicsDeviceTable = new TableView<>();
         graphicsDeviceTable.setItems(JOCLSample.getGraphicsDevices());
@@ -63,13 +83,17 @@ public class GPUSelectionBox extends Stage {
                 new ChangeListener() {
                     @Override
                     public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
+                        selectButton.setDisable(true);
+                        gpuCalculationTest.setText("Test OpenCL Device");
+
                         //Check whether item is selected and set value of selected item to Label
                         if(graphicsDeviceTable.getSelectionModel().getSelectedItem() != null)
                         {
                             GraphicsDevice graphicsDevice = graphicsDeviceTable.getSelectionModel().getSelectedItem();
                             textArea.setText(JOCLSample.getDeviceSpecifications(graphicsDevice.getId()));
-                            selectButton.setDisable(false);
+                            gpuCalculationTest.setDisable(false);
                         } else {
+                            gpuCalculationTest.setDisable(true);
                             selectButton.setDisable(true);
                             textArea.setText("");
                         }

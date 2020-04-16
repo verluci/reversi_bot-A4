@@ -21,19 +21,13 @@ public class SettingsController extends AnchorPane {
     @FXML TextField port;
     @FXML TextField threads;
 
-    private App application;
-
-    public void setApp(App app){
-        this.application = app;
-    }
-
     public void initialize(){
         findProperties();
         System.out.println();
     }
 
     private void findProperties(){
-        properties = application.getInstance().properties;
+        properties = App.getInstance().getProperties();
 
         ipAddress.setText(properties.get("ipAddress").toString());
         port.setText(properties.get("port").toString());
@@ -49,7 +43,7 @@ public class SettingsController extends AnchorPane {
         properties.setProperty("threads", threads.getText());
         properties.store(out, null);
 
-        application.getInstance().navigateScene("login");
+        App.getInstance().navigateScene("login");
 
     }
 }

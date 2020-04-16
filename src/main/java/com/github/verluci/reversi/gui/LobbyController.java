@@ -23,18 +23,12 @@ public class LobbyController extends AnchorPane {
     @FXML private ListView currentPlayers;
     @FXML private Text welkomSpeler;
 
-    private App application;
-
     private static final Duration PROBE_FREQUENCY = Duration.seconds(1);
 
     private Timeline timeline;
 
-    public void setApp(App app){
-        this.application = app;
-    }
-
     public void initialize() {
-        welkomSpeler.setText("Welkom, " + application.getInstance().localPlayer.getName());
+        welkomSpeler.setText("Welkom, " + App.getInstance().getLocalPlayer().getName());
         updateCurrentPlayerList();
     }
 
@@ -43,11 +37,11 @@ public class LobbyController extends AnchorPane {
                 new KeyFrame(
                         Duration.ZERO,
                         actionEvent -> {
-                            Player[] players = application.getInstance().gameClient.getPlayerList();
+                            Player[] players = App.getInstance().getGameClient().getPlayerList();
                             ObservableList<String> playersAr = FXCollections.observableArrayList();
                             for (int i = 0; i < players.length; i++) {
                                 String playerName = players[i].getName();
-                                if (!playerName.equals(application.getInstance().localPlayer.getName())) {
+                                if (!playerName.equals(App.getInstance().getLocalPlayer().getName())) {
                                     playersAr.add(playerName);
                                 }
                             }
@@ -115,7 +109,7 @@ public class LobbyController extends AnchorPane {
             controller.setupAIGame(difficulty);
         }
         Scene newScene = new Scene(root);
-        application.getInstance().primaryStage.setScene(newScene);
+        App.getInstance().getPrimaryStage().setScene(newScene);
     }
 
     public void navigateTickTackToe(boolean online, Difficulty difficulty){
@@ -136,6 +130,6 @@ public class LobbyController extends AnchorPane {
             controller.setupAIGame(difficulty);
         }
         Scene newScene = new Scene(root);
-        application.getInstance().primaryStage.setScene(newScene);
+        App.getInstance().getPrimaryStage().setScene(newScene);
     }
 }

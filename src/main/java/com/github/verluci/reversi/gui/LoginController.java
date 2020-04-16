@@ -13,12 +13,6 @@ public class LoginController extends AnchorPane {
     @FXML private TextField userName;
     @FXML private Label loginError;
 
-    private App application;
-
-    public void setApp(App app){
-        this.application = app;
-    }
-
     public void initialize() {
         loginError.setText("");
     }
@@ -29,8 +23,8 @@ public class LoginController extends AnchorPane {
             if (userName.getText() == null || userName.getText().trim().isEmpty()) {
                 loginError.setText("Vul een geldige gebruikersnaam in");
             } else {
-                application.getInstance().initializeConnection(userName.getText());
-                application.getInstance().navigateScene("lobby");
+                App.getInstance().initializeConnection(userName.getText());
+                App.getInstance().navigateScene("lobby");
             }
         } catch (GameClientExceptions.LoginException e) {
             loginError.setText("Deze naam is al in gebruik");
@@ -42,6 +36,6 @@ public class LoginController extends AnchorPane {
     }
 
     public void goToSettings(ActionEvent actionEvent) throws IOException {
-        application.getInstance().navigateScene("settings");
+        App.getInstance().navigateScene("settings");
     }
 }
