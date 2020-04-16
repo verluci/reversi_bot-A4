@@ -128,6 +128,7 @@ public class OthelloController extends AnchorPane {
 
     public void setupMultiplayerGame(){
         status.setText("Er word een spel gezocht");
+        gameClient = application.getInstance().gameClient;
         player2 = new NetworkAgent(gameClient, localPlayer);
         session = new SessionInitializer(player1, player2, OthelloGame.class);
         com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
@@ -174,7 +175,6 @@ public class OthelloController extends AnchorPane {
         });
 
         game.onNextPlayer(player -> {
-            System.out.println("next");
             Platform.runLater(this::updateGameBoard);
         });
 
