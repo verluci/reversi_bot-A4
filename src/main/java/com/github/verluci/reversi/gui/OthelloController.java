@@ -10,13 +10,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
-import java.io.IOException;
 
 public class OthelloController extends AnchorPane {
     private App application;
@@ -47,8 +48,8 @@ public class OthelloController extends AnchorPane {
     private Button exitButton;
 
     public void initialize() {
-        othpane.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-        gameClient = application.getInstance().gameClient;
+        BackgroundImage backgroundImage = new BackgroundImage(new Image("/hout.jpg"), BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT,BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT );
+        othpane.setBackground(new Background(backgroundImage));
         localPlayer = application.getInstance().localPlayer;
         player1 = new LocalUIPlayerAgent();
         exitButton.setVisible(false);
@@ -84,17 +85,25 @@ public class OthelloController extends AnchorPane {
                     }
                 } else if (tiles[i][j].getState() == TileState.PLAYER1) {
                     witScore++;
-                    Circle circle = new Circle();
-                    circle.setRadius(getScaleX());
-                    circle.setStrokeWidth(10);
-                    circle.setFill(Color.WHITE);
-                    othpane.add(circle, i, j);
+                    Image image = new Image("/othello_wit.png");
+
+                    ImageView imageView = new ImageView();
+                    imageView.setImage(image);
+                    imageView.setFitHeight(70);
+                    imageView.setPreserveRatio(true);
+                    imageView.setCache(true);
+
+                    othpane.add(imageView, i, j);
                 } else if (tiles[i][j].getState() == TileState.PLAYER2) {
                     zwartScore++;
-                    Circle circle = new Circle();
-                    circle.setRadius(35);
-                    circle.setStrokeWidth(10);
-                    othpane.add(circle, i, j);
+                    Image image = new Image("/othello_zwart.png");
+
+                    ImageView imageView = new ImageView();
+                    imageView.setImage(image);
+                    imageView.setFitHeight(70);
+                    imageView.setPreserveRatio(true);
+                    imageView.setCache(true);
+                    othpane.add(imageView, i, j);
                 }
             }
         }
@@ -180,7 +189,7 @@ public class OthelloController extends AnchorPane {
         }
         try {
             application.getInstance().navigateScene("lobby");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
