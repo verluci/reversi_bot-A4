@@ -49,7 +49,7 @@ public class OthelloController extends AnchorPane {
     public void initialize() {
         BackgroundImage backgroundImage = new BackgroundImage(new Image("/hout.jpg"), BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT,BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT );
         othpane.setBackground(new Background(backgroundImage));
-        localPlayer = App.getInstance().localPlayer;
+        localPlayer = App.getInstance().getLocalPlayer();
         player1 = new LocalUIPlayerAgent();
         exitButton.setVisible(false);
     }
@@ -127,7 +127,7 @@ public class OthelloController extends AnchorPane {
 
     public void setupMultiplayerGame(){
         status.setText("Er word een spel gezocht");
-        gameClient = App.getInstance().gameClient;
+        gameClient = App.getInstance().getGameClient();
         player2 = new NetworkAgent(gameClient, localPlayer);
         session = new SessionInitializer(player1, player2, OthelloGame.class);
         com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};

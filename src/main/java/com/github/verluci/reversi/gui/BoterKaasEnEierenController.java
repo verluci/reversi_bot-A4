@@ -45,8 +45,8 @@ public class BoterKaasEnEierenController extends AnchorPane {
 
     public void initialize()  {
         exitButton.setVisible(false);
-        gameClient = App.getInstance().gameClient;
-        localPlayer = App.getInstance().localPlayer;
+        gameClient = App.getInstance().getGameClient();
+        localPlayer = App.getInstance().getLocalPlayer();
     }
 
     private void updateGameBoard(){

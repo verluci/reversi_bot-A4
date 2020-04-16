@@ -27,7 +27,7 @@ public class SettingsController extends AnchorPane {
     }
 
     private void findProperties(){
-        properties = App.getInstance().properties;
+        properties = App.getInstance().getProperties();
 
         ipAddress.setText(properties.get("ipAddress").toString());
         port.setText(properties.get("port").toString());

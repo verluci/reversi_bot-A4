@@ -28,7 +28,7 @@ public class LobbyController extends AnchorPane {
     private Timeline timeline;
 
     public void initialize() {
-        welkomSpeler.setText("Welkom, " + App.getInstance().localPlayer.getName());
+        welkomSpeler.setText("Welkom, " + App.getInstance().getLocalPlayer().getName());
         updateCurrentPlayerList();
     }
 
@@ -37,11 +37,11 @@ public class LobbyController extends AnchorPane {
                 new KeyFrame(
                         Duration.ZERO,
                         actionEvent -> {
-                            Player[] players = App.getInstance().gameClient.getPlayerList();
+                            Player[] players = App.getInstance().getGameClient().getPlayerList();
                             ObservableList<String> playersAr = FXCollections.observableArrayList();
                             for (int i = 0; i < players.length; i++) {
                                 String playerName = players[i].getName();
-                                if (!playerName.equals(App.getInstance().localPlayer.getName())) {
+                                if (!playerName.equals(App.getInstance().getLocalPlayer().getName())) {
                                     playersAr.add(playerName);
                                 }
                             }
@@ -109,7 +109,7 @@ public class LobbyController extends AnchorPane {
             controller.setupAIGame(difficulty);
         }
         Scene newScene = new Scene(root);
-        App.getInstance().primaryStage.setScene(newScene);
+        App.getInstance().getPrimaryStage().setScene(newScene);
     }
 
     public void navigateTickTackToe(boolean online, Difficulty difficulty){
@@ -130,6 +130,6 @@ public class LobbyController extends AnchorPane {
             controller.setupAIGame(difficulty);
         }
         Scene newScene = new Scene(root);
-        App.getInstance().primaryStage.setScene(newScene);
+        App.getInstance().getPrimaryStage().setScene(newScene);
     }
 }
