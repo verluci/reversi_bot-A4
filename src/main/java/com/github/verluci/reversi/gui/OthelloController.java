@@ -77,7 +77,6 @@ public class OthelloController extends AnchorPane {
 
                         circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                             player1.doMove( x, y);
-                            updateGameBoard();
                         });
 
                         othpane.add(circle, i, j);
@@ -174,6 +173,10 @@ public class OthelloController extends AnchorPane {
         });
 
         game.onNextPlayer(player -> {
+            Platform.runLater(this::updateGameBoard);
+        });
+
+        game.onMove((mover, xPosition, yPosition) -> {
             Platform.runLater(this::updateGameBoard);
         });
 
