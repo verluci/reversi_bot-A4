@@ -32,7 +32,7 @@ public class LoginController extends AnchorPane {
                 application.getInstance().initializeConnection(userName.getText());
                 application.getInstance().navigateScene("lobby");
             }
-        } catch (GameClientExceptions.LoginException ) {
+        } catch (GameClientExceptions.LoginException e) {
             loginError.setText("Deze naam is al in gebruik");
         } catch (GameClientExceptions.ConnectionException e) {
             loginError.setText("Er is een probleem met deze server. Kies een andere of probeer het later nog eens");
