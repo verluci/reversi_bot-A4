@@ -27,6 +27,11 @@ public class RandomMoveAIAgent extends AIAgent {
      */
     @Override
     protected Tile findOptimalMove(GameBoard board) {
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         var possibleMoves = board.getTilesWithState(TileState.POSSIBLE_MOVE);
         return possibleMoves.get(random.nextInt(possibleMoves.size()));
     }
