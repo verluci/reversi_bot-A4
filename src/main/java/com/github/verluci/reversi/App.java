@@ -1,10 +1,8 @@
 package com.github.verluci.reversi;
 
-import com.github.verluci.reversi.game.Game;
-import com.github.verluci.reversi.game.SessionInitializer;
 import com.github.verluci.reversi.game.agents.Agent;
 import com.github.verluci.reversi.game.agents.LocalPlayerAgent;
-import com.github.verluci.reversi.game.agents.NetworkAgent;
+import com.github.verluci.reversi.game.agents.LocalUIPlayerAgent;
 import com.github.verluci.reversi.gpgpu.GPUSelectionBox;
 import com.github.verluci.reversi.gpgpu.GraphicsDevice;
 import com.github.verluci.reversi.gpgpu.JOCLSample;
@@ -12,7 +10,6 @@ import com.github.verluci.reversi.networking.GameClientExceptions;
 import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -45,7 +42,6 @@ public class App extends Application {
 
     public GameClient gameClient;
     public com.github.verluci.reversi.networking.types.Player localPlayer;
-    public Agent player1;
 
     private static App instance;
 
@@ -105,7 +101,6 @@ public class App extends Application {
         gameClient.connect(properties.getProperty("ipAddress"), parseInt(properties.getProperty("port")));
         this.localPlayer = new com.github.verluci.reversi.networking.types.Player(name);
         gameClient.login(name);
-        player1 = new LocalPlayerAgent();
     }
 
     public void navigateScene(String scene) throws IOException {
