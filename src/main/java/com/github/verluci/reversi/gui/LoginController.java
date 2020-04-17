@@ -4,29 +4,41 @@ import com.github.verluci.reversi.App;
 import com.github.verluci.reversi.networking.GameClientExceptions;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 import java.util.Properties;
 
+/*
+ * Scene for logging in
+ */
 public class LoginController extends AnchorPane {
-    @FXML private TextField userName;
-    @FXML private Label loginError;
     Properties properties;
 
+    @FXML private TextField userName;
+    @FXML private Label loginError;
+
+    /*
+     *  Method to initialize this scene UI.
+     *  Should not be called manually, done by JavaFX
+     */
     public void initialize() {
         properties = App.getInstance().getProperties();
         loginError.setText("");
 
-        if(properties.getProperty("gpuName").equals("")){
+        if (properties.getProperty("gpuName").equals("")) {
             loginError.setText("Er is geen GPU gevonden. Selecteer er een in Instellingen");
         }
     }
 
-    @FXML
+    /*
+     *  Used by FXML Button to login player
+     *  @param  event  event from Button
+     */
     public void loginUser(ActionEvent event) {
-        try{
+        try {
             if (userName.getText() == null || userName.getText().trim().isEmpty()) {
                 loginError.setText("Vul een geldige gebruikersnaam in");
             } else {
@@ -42,6 +54,10 @@ public class LoginController extends AnchorPane {
         }
     }
 
+    /*
+     *  Used by FXML Button to navigate to settings
+     *  @param  event  event from Button
+     */
     public void goToSettings(ActionEvent actionEvent) throws IOException {
         App.getInstance().navigateScene("settings");
     }
