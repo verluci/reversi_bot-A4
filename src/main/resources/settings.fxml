@@ -6,23 +6,23 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.SettingsController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.SettingsController" styleClass="background">
    <children>
-      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="110.0" layoutY="179.0" prefHeight="17.0" prefWidth="131.0" text="Server IP" textAlignment="RIGHT" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="110.0" layoutY="179.0" prefHeight="17.0" prefWidth="131.0" text="Server IP" textAlignment="RIGHT" styleClass="textnormal" />
       <TextField fx:id="ipAddress" layoutX="298.0" layoutY="175.0" prefHeight="25.0" prefWidth="209.0" />
-      <Label alignment="CENTER_RIGHT" layoutX="137.0" layoutY="225.0" prefHeight="17.0" prefWidth="104.0" text="Server poort" textAlignment="RIGHT" />
+      <Label alignment="CENTER_RIGHT" layoutX="137.0" layoutY="225.0" prefHeight="17.0" prefWidth="104.0" text="Server poort" textAlignment="RIGHT" styleClass="textnormal" />
       <TextField fx:id="port" layoutX="298.0" layoutY="221.0" prefHeight="25.0" prefWidth="209.0" />
-      <Label alignment="CENTER_RIGHT" layoutX="91.0" layoutY="277.0" prefHeight="17.0" prefWidth="150.0" text="Tijd (in seconden) per beurt" textAlignment="RIGHT" />
+      <Label alignment="CENTER_RIGHT" layoutX="91.0" layoutY="277.0" prefHeight="17.0" prefWidth="150.0" text="Tijd (in seconden) per beurt" textAlignment="RIGHT" styleClass="textnormal" />
       <TextField fx:id="turnTime" layoutX="298.0" layoutY="273.0" prefHeight="25.0" prefWidth="209.0" />
       <Button layoutX="883.0" layoutY="221.0" mnemonicParsing="false" onAction="#chooseGPU" prefHeight="25.0" prefWidth="209.0" text="Selecteer videokaart" />
-      <Label alignment="CENTER_RIGHT" layoutX="719.0" layoutY="265.0" prefHeight="17.0" prefWidth="131.0" text="Aantal threads" textAlignment="RIGHT" />
+      <Label alignment="CENTER_RIGHT" layoutX="719.0" layoutY="265.0" prefHeight="17.0" prefWidth="131.0" text="Aantal threads" textAlignment="RIGHT" styleClass="textnormal" />
       <TextField fx:id="threads" layoutX="883.0" layoutY="261.0" prefHeight="25.0" prefWidth="209.0" />
-      <Text layoutX="770.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Het aantal threads bepaalt hoe goed de computer is in Othello (moeilijk). Hoe meer threads deze heeft hoe beter hij is. Echter kosten meer threads ook meer rekentijd. Bij het kiezen van een GPU word automatisch de juiste hoeveelheid threads bepaald voor de door jou geselecteerde tijd per beurt. Je kan het echter ook handmatig aanpassen." wrappingWidth="321.13671875" />
+      <Text layoutX="770.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="textnormal" text="Het aantal threads bepaalt hoe goed de computer is in Othello (moeilijk). Hoe meer threads deze heeft hoe beter hij is. Echter kosten meer threads ook meer rekentijd. Bij het kiezen van een GPU word automatisch de juiste hoeveelheid threads bepaald voor de door jou geselecteerde tijd per beurt. Je kan het echter ook handmatig aanpassen." wrappingWidth="321.13671875" />
       <Button layoutX="535.0" layoutY="542.0" mnemonicParsing="false" onAction="#opslaan" prefHeight="25.0" prefWidth="209.0" text="Opslaan" />
       <Text layoutX="94.0" layoutY="90.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_2" text="Server instellingen" textAlignment="CENTER" wrappingWidth="412.0" />
       <Text layoutX="778.0" layoutY="90.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header_2" text="GPU instellingen" textAlignment="CENTER" wrappingWidth="321.13671875" />
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-      <Text layoutX="749.0" layoutY="192.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Huidige videokaart" />
-      <Text fx:id="gpuName" layoutX="883.0" layoutY="179.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="209.0" />
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" styleClass="textnormal" />
+      <Text layoutX="749.0" layoutY="192.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Huidige videokaart" styleClass="textnormal" />
+      <Text fx:id="gpuName" layoutX="883.0" layoutY="179.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="209.0"  styleClass="textnormal" />
    </children>
 </AnchorPane>
