@@ -13,6 +13,9 @@ public class LocalPlayerAgent extends Agent {
         super();
     }
 
+    /**
+     * This method uses the cli for performing the next move.
+     */
     @Override
     public void performNextMove() {
         Scanner scanner = new Scanner(System.in);

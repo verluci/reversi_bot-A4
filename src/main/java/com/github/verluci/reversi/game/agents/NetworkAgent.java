@@ -26,6 +26,9 @@ public class NetworkAgent extends Agent {
         this.localPlayer = localPlayer;
     }
 
+    /**
+     * This method waits until the gameClient returns a move from the enemy player.
+     */
     @Override
     public void performNextMove() {
         synchronized (this) {
@@ -37,6 +40,10 @@ public class NetworkAgent extends Agent {
         }
     }
 
+    /**
+     * Sets the game where this Agent should play on and any networking related settings to that game.
+     * @param game The game this agent should play in.
+     */
     @Override
     public void setGame(Game game) {
         super.setGame(game);
@@ -102,10 +109,5 @@ public class NetworkAgent extends Agent {
                 }
             }
         });
-    }
-
-    @Override
-    public void setPlayer(Game.Player player) {
-        super.setPlayer(player);
     }
 }

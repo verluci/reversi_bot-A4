@@ -18,6 +18,10 @@ public class TicTacToeGame extends Game {
         super("Tic-tac-toe", new GameBoard(BOARD_SIZE, BOARD_SIZE));
     }
 
+    /**
+     * If there are no players on the tile, the tile is available.
+     * @param player The player for which the moves are possible.
+     */
     @Override
     protected void findValidMoves(Player player) {
         Tile[][] tiles = board.getTiles();
@@ -30,6 +34,13 @@ public class TicTacToeGame extends Game {
         }
     }
 
+    /**
+     * If there are no players on the tile the move is valid.
+     * @param player The player that wants to make the move.
+     * @param x The horizontal position of the move.
+     * @param y The vertical position of the move.
+     * @return If there are no players on the tile the move is valid.
+     */
     @Override
     public boolean isValidMove(Player player, int x, int y) {
         if(player == Player.UNDEFINED)
@@ -57,6 +68,9 @@ public class TicTacToeGame extends Game {
         throw new InvalidParameterException("The current player can't be undefined!");
     }
 
+    /**
+     * @return Will only return a leading player if a three of a row has been marked.
+     */
     @Override
     protected Player checkLeadingPlayer() {
         if(getPlayerScore(Player.PLAYER1) == getPlayerScore(Player.PLAYER2))
@@ -65,6 +79,9 @@ public class TicTacToeGame extends Game {
             return getPlayerScore(Player.PLAYER1) > getPlayerScore(Player.PLAYER2) ? Player.PLAYER1 : Player.PLAYER2;
     }
 
+    /**
+     * @return If the game has a row of three of a certain player, or if the board is full.
+     */
     @Override
     protected boolean hasGameEnded() {
         switch (getCurrentPlayer()) {

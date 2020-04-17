@@ -1,6 +1,5 @@
 package com.github.verluci.reversi.gpgpu;
 
-import com.github.verluci.reversi.game.agents.MCTSAIAgent;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
@@ -10,13 +9,19 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+/**
+ * Use this pop-up GPUSelectionBox if you want to test and select a GraphicsDevice.
+ */
 public class GPUSelectionBox extends Stage {
 
     private TableView<GraphicsDevice> graphicsDeviceTable;
     private TextArea textArea;
-
     private GraphicsDevice selectedGraphicsDevice;
 
+    /**
+     * Constructor for GPUSelectionBox
+     * @param time The time in seconds the selected GraphicsDevice is allowed to use during a match.
+     */
     public GPUSelectionBox(float time) {
         TableColumn<GraphicsDevice, DeviceType> typeColumn = new TableColumn<>("Type");
         typeColumn.setMinWidth(50);
@@ -122,6 +127,9 @@ public class GPUSelectionBox extends Stage {
         this.setTitle("Choose your OpenCL Device");
     }
 
+    /**
+     * @return A pop-up of this window and will return the selected GraphicsDevice.
+     */
     public GraphicsDevice selectGraphicsDevice() {
         if(!this.isShowing())
             this.showAndWait();

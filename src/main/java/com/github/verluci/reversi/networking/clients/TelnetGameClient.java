@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
 
 public class TelnetGameClient extends GameClient {
+
+    //region Declarations
+
     private TelnetClient telnet;
     private DataOutputStream out;
     private DataInputStream in;
@@ -29,6 +32,8 @@ public class TelnetGameClient extends GameClient {
     private volatile String error;
 
     private ConcurrentHashMap<Integer, Challenge> activeChallenges;
+
+    //endregion
 
     /**
      * Constructor for TelnetGameClient.

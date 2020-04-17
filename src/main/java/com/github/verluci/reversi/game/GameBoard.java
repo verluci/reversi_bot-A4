@@ -176,6 +176,9 @@ public class GameBoard {
 
     //endregion
 
+    /**
+     * @return A readable cli version of the board.
+     */
     @Override
     public String toString() {
         StringBuilder boardBuilder = new StringBuilder();

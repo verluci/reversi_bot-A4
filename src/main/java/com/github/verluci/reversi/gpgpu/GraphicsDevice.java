@@ -3,6 +3,9 @@ package com.github.verluci.reversi.gpgpu;
 import org.jocl.cl_device_id;
 import org.jocl.cl_platform_id;
 
+/**
+ * This class contains all information for a single GraphicsDevice
+ */
 public class GraphicsDevice {
     private cl_device_id id;
     private cl_platform_id platform_id;

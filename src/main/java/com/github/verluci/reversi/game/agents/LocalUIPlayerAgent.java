@@ -1,15 +1,18 @@
 package com.github.verluci.reversi.game.agents;
 
+/**
+ * Use this agent if you want to use a local agent for in a UI.
+ */
 public class LocalUIPlayerAgent extends Agent {
-    boolean doneWithTurn = false;
-    int x;
-    int y;
+    private boolean doneWithTurn = false;
+    private int x;
+    private int y;
 
-    public LocalUIPlayerAgent() {
-        super();
-
-    }
-
+    /**
+     * Use this method in your GUI to perform a move.
+     * @param x The horizontal position of this move.
+     * @param y The vertical position of this move.
+     */
     public synchronized void doMove(int x, int y) {
         this.x = x;
         this.y = y;
@@ -17,6 +20,9 @@ public class LocalUIPlayerAgent extends Agent {
         notify();
     }
 
+    /**
+     * This method waits until doMove is performed.
+     */
     @Override
     public synchronized void performNextMove() {
         try {
@@ -27,7 +33,7 @@ public class LocalUIPlayerAgent extends Agent {
             doneWithTurn = false;
 
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }

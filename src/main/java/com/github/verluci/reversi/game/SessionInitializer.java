@@ -10,6 +10,9 @@ import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 import java.security.InvalidParameterException;
 import org.apache.commons.cli.*;
 
+/**
+ * Use this class if you want to create a session between two players on a game.
+ */
 public class SessionInitializer {
     private Game game;
     private Agent player1;

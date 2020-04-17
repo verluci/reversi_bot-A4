@@ -92,6 +92,8 @@ public class Tile {
         }
     }
 
+    // Equality
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -105,4 +107,6 @@ public class Tile {
     public int hashCode() {
         return Objects.hash(xCoordinate, yCoordinate);
     }
+
+    //endregion
 }

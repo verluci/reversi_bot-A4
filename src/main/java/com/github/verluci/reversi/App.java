@@ -41,7 +41,7 @@ public class App extends Application {
         return instance;
     }
 
-    //endregion +
+    //endregion
 
     //region Declarations
 

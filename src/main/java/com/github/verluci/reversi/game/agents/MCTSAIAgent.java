@@ -59,6 +59,10 @@ public class MCTSAIAgent extends AIAgent {
         return board.getTile(x, y);
     }
 
+    /**
+     * setGame() is overriden in MCTSAIAgent because the MCTSAIAgent only works for OthelloGame.
+     * @param game The game this agent should play in.
+     */
     @Override
     public void setGame(Game game) {
         if(game instanceof OthelloGame)
