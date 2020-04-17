@@ -97,7 +97,9 @@ public class SettingsController extends AnchorPane {
         properties.setProperty("gpuName", gpuName.getText());
         properties.store(out, null);
 
-        App.getInstance().getSelectedGraphicsDevice().setEstimatePerformance(Integer.parseInt(properties.getProperty("threads")));
+        if(App.getInstance().getSelectedGraphicsDevice() != null) {
+            App.getInstance().getSelectedGraphicsDevice().setEstimatePerformance(Integer.parseInt(properties.getProperty("threads")));
+        }
 
         App.getInstance().navigateScene("login");
     }

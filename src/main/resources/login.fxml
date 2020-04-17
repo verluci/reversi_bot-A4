@@ -5,8 +5,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.LoginController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="background" stylesheets="@style.scss" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.verluci.reversi.gui.LoginController">
    <children>
       <Label id="header-kies-naam" alignment="CENTER" ellipsisString="" layoutX="508.0" layoutY="294.0" prefHeight="27.0" prefWidth="270.0" styleClass="header_2" stylesheets="@style.scss" text="Kies een naam" textAlignment="CENTER">
          <font>
@@ -14,11 +15,12 @@
          </font></Label>
       <TextField fx:id="userName" layoutX="509.0" layoutY="340.0" onAction="#loginUser" prefHeight="35.0" prefWidth="270.0" />
       <Button layoutX="509.0" layoutY="390.0" mnemonicParsing="false" onAction="#loginUser" prefHeight="35.0" prefWidth="270.0" text="Gaan" textAlignment="CENTER" />
-      <Label fx:id="loginError" alignment="TOP_LEFT" layoutX="509.0" layoutY="440.0" prefHeight="113.0" prefWidth="270.0" styleClass="error" stylesheets="@style.scss" text="Foutmelding" textAlignment="CENTER" wrapText="true">
+      <Label fx:id="loginError" alignment="TOP_LEFT" layoutX="509.0" layoutY="440.0" prefHeight="113.0" prefWidth="270.0" styleClass="textwarning" stylesheets="@style.scss" text="Foutmelding" textAlignment="CENTER" wrapText="true">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
       <Button layoutX="1147.0" layoutY="674.0" mnemonicParsing="false" onAction="#goToSettings" prefHeight="32.0" prefWidth="119.0" text="Instellingen" />
+      <Text layoutX="284.0" layoutY="216.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="title" text="Othello" textAlignment="CENTER" wrappingWidth="719.9830722808838" />
    </children>
 </AnchorPane>
