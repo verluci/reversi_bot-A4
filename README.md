@@ -15,8 +15,8 @@ git clone https://github.com/verluci/reversi_bot-A4.git
 Build the project using maven (using your favorite IDE), I suggest adding a run configuration to your IDE using the following maven commands:
 
 ```
-mvn javafx:compile
-mvn javafx:run
+mvn javafx:compile -P development
+mvn javafx:run -P development
 ```
 
 This might look like this in your IDE:
@@ -36,7 +36,7 @@ To package the project as a .jar perform the following maven command:
 > this can also be done inside of your IDE
 
 ```
-mvn package
+mvn package -P release
 ```
 
 ## Running
@@ -63,7 +63,7 @@ sudo apt install ocl-icd-opencl-dev
 To run the `.jar` either launch it using your file-manager or go to the location of the `.jar` in your terminal and run the following command:
 
 ```
-java -jar boardgame_bot.jar
+java -jar reversi-1.0-SNAPSHOT.jar
 ```
 
 ### Running on Windows
@@ -87,5 +87,33 @@ The optional OpenCL libraries should be shipped with your GPU drivers on Windows
 To run the `.jar` either launch it using Windows file-manager or go to the location of the `.jar` in your cmd and run the following command:
 
 ```
-java -jar boardgame_bot.jar
+java -jar reversi-1.0-SNAPSHOT.jar
 ```
+
+## Usage
+
+If you want to play against other players in a tournament use the headless packaged `.jar`-file as followed:
+
+```
+> java -jar reversi-1.0-SNAPSHOT-headless.jar -u USERNAME -h HOSTNAME -p PORT -t N_THREADS
+
+usage:
+ -gpu,--gpu <arg>      The device-index of the CL-device that is going to
+                       be performing the simulations.
+ -h,--hostname <arg>   The host-name or ip-address of the server.
+ -p,--port <arg>       The port of the server.
+ -t,--threads <arg>    The base amount of threads * 1024 this GPU is going
+                       to use. The maximum amount of threads that are
+                       going to be used is threads * 2048.
+ -u,--username <arg>   The player's username on the server.
+```
+
+If you want to play against the AI with a UI locally launch the non-headless variant using:
+
+> Make sure a game-server is running and you have configured the hostname and port correctly. If you want to play against the MCTS-GPU AI make sure to choose your graphics device in *Instellingen*
+
+```
+java -jar reversi-1.0-SNAPSHOT.jar
+```
+
+![](images/reversi-game-screenshot.png)
