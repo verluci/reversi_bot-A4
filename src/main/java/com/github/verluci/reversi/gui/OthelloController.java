@@ -74,11 +74,11 @@ public class OthelloController extends AnchorPane {
                     }
                 }
                 else if (tiles[i][j].getState() == TileState.PLAYER1) {
-                    ImageView whitePiece = createRegularPiece(true);
+                    ImageView whitePiece = createRegularPiece(false);
                     othpane.add(whitePiece, i, j);
                 }
                 else if (tiles[i][j].getState() == TileState.PLAYER2) {
-                    ImageView blackPiece = createRegularPiece(false);
+                    ImageView blackPiece = createRegularPiece(true);
                     othpane.add(blackPiece, i, j);
                 }
             }
@@ -122,15 +122,15 @@ public class OthelloController extends AnchorPane {
             e.printStackTrace();
         }
 
-        sessionThread = new Thread(() -> {
-            if (startingPlayer[0].equals(localPlayer)) {
-                session.start(player1);
-            } else {
-                session.start(player2);
-            }
-        });
-
         gameClient.onGameStart(listener -> {
+            sessionThread = new Thread(() -> {
+                if (startingPlayer[0].equals(localPlayer)) {
+                    session.start(player1);
+                } else {
+                    session.start(player2);
+                }
+            });
+
             startingPlayer[0] = listener.getStartingPlayer();
 
             if(listener.getStartingPlayer().equals(localPlayer))
@@ -149,6 +149,7 @@ public class OthelloController extends AnchorPane {
 
         gameClient.onGameEnd(listener -> {
             sessionThread.interrupt();
+            gameClient = null;
         });
     }
 
@@ -185,8 +186,9 @@ public class OthelloController extends AnchorPane {
      */
     public void exit(ActionEvent actionEvent) {
         try {
-            if (gameClient != null)
+            if (gameClient != null) {
                 gameClient.forfeit();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

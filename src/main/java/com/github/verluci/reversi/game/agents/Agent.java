@@ -1,7 +1,7 @@
 package com.github.verluci.reversi.game.agents;
 
 import com.github.verluci.reversi.game.Game;
-import com.github.verluci.reversi.game.Game.*;
+import com.github.verluci.reversi.game.Game.Player;
 
 /**
  * Implement this class if you want to create a new agent that can play a game.
@@ -13,9 +13,11 @@ public abstract class Agent {
     /**
      * Constructor for Agent
      */
-    public Agent() { }
+    public Agent() {
+    }
 
     // TODO: Change the abstraction a little bit so that the user chooses a tile instead.
+
     /**
      * Implement this method and use the move() method in this class.
      */
@@ -37,16 +39,17 @@ public abstract class Agent {
 
     /**
      * This method tries to perform a move on the game.
+     *
      * @param x The horizontal position of the tile you want to make a move on.
      * @param y The vertical position of the tile you want to make a move on.
      */
     protected void move(int x, int y) {
-        if(!game.tryMove(player, x, y))
-            System.out.println(this.getClass().getSimpleName() + " " + player + " tried to perform a move but it somehow failed!");
+        game.tryMove(player, x, y);
     }
 
     /**
      * sets the game this agent is playing in.
+     *
      * @param game The game this agent should play in.
      */
     public void setGame(Game game) {
@@ -54,17 +57,18 @@ public abstract class Agent {
     }
 
     /**
-     * Sets the Player the agent is in a game.
-     * @param player The player the agent plays in a game.
-     */
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    /**
      * @return The Player this agent is playing.
      */
     public Player getPlayer() {
         return player;
+    }
+
+    /**
+     * Sets the Player the agent is in a game.
+     *
+     * @param player The player the agent plays in a game.
+     */
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 }
