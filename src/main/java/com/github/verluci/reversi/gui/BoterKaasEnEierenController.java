@@ -13,6 +13,8 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
@@ -178,9 +180,11 @@ public class BoterKaasEnEierenController extends AnchorPane {
      */
     private Circle possibleMovePiece(int x, int y){
         Circle possibleMovePiece = new Circle();
-        possibleMovePiece.setRadius(95);
-        possibleMovePiece.setStrokeWidth(95);
+        possibleMovePiece.setRadius(85);
+        possibleMovePiece.setStrokeWidth(15);
         possibleMovePiece.setOpacity(0.1);
+        possibleMovePiece.setStroke(Color.web("#E98074"));
+        possibleMovePiece.setFill(Color.TRANSPARENT);
         possibleMovePiece.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             player1.doMove(x, y);
         });
@@ -192,17 +196,19 @@ public class BoterKaasEnEierenController extends AnchorPane {
      */
     public Group createCross(){
         Line line1 = new Line();
-        line1.setStartX(5);
-        line1.setStartY(5);
-        line1.setStartX(195);
-        line1.setStartY(195);
-        line1.setStrokeWidth(5);
+        line1.setStartX(25);
+        line1.setStartY(25);
+        line1.setEndX(175);
+        line1.setEndY(175);
+        line1.setStrokeWidth(15);
+        line1.setStroke(Color.web("#8E8D8A"));
         Line line2 = new Line();
-        line2.setStartX(195);
-        line2.setStartY(5);
-        line2.setEndX(5);
-        line2.setEndY(195);
-        line2.setStrokeWidth(5);
+        line2.setStartX(175);
+        line2.setStartY(25);
+        line2.setEndX(25);
+        line2.setEndY(175);
+        line2.setStrokeWidth(15);
+        line2.setStroke(Color.web("#8E8D8A"));
         Group group = new Group(line1, line2);
         return group;
     }
@@ -212,8 +218,10 @@ public class BoterKaasEnEierenController extends AnchorPane {
      */
     public Circle createCircle(){
         Circle circle = new Circle();
-        circle.setRadius(95);
-        circle.setStrokeWidth(95);
+        circle.setRadius(85);
+        circle.setStrokeWidth(15);
+        circle.setStroke(Color.web("#E98074"));
+        circle.setFill(Color.TRANSPARENT);
         return circle;
     }
 }
