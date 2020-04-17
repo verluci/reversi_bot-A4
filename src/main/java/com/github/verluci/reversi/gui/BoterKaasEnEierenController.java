@@ -106,15 +106,14 @@ public class BoterKaasEnEierenController extends AnchorPane {
             System.out.println("Something went wrong");
         }
 
-        sessionThread = new Thread(() -> {
-            if (startingPlayer[0].equals(localPlayer)) {
-                session.start(player1);
-            } else {
-                session.start(player2);
-            }
-        });
-
         gameClient.onGameStart(listener -> {
+            sessionThread = new Thread(() -> {
+                if (startingPlayer[0].equals(localPlayer)) {
+                    session.start(player1);
+                } else {
+                    session.start(player2);
+                }
+            });
             startingPlayer[0] = listener.getStartingPlayer();
             startGame();
         });
