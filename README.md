@@ -67,7 +67,7 @@ sudo apt install ocl-icd-opencl-dev
 To run the `.jar` either launch it using your file-manager or go to the location of the `.jar` in your terminal and run the following command:
 
 ```
-java -jar reversi-1.0-SNAPSHOT.jar
+java -jar reversi-1.0-RELEASE.jar
 ```
 
 ### Running on Windows
@@ -91,7 +91,7 @@ The optional OpenCL libraries should be shipped with your GPU drivers on Windows
 To run the `.jar` either launch it using Windows file-manager or go to the location of the `.jar` in your cmd and run the following command:
 
 ```
-java -jar reversi-1.0-SNAPSHOT.jar
+java -jar reversi-1.0-RELEASE.jar
 ```
 
 ## Usage
@@ -117,7 +117,7 @@ If you want to play against the AI with a UI locally launch the non-headless var
 > Make sure a game-server is running and you have configured the hostname and port correctly. If you want to play against the MCTS-GPU AI make sure to choose your graphics device in *Instellingen*
 
 ```
-java -jar reversi-1.0-SNAPSHOT.jar
+java -jar reversi-1.0-RELEASE.jar
 ```
 
 ![](images/reversi-game-screenshot.png)
