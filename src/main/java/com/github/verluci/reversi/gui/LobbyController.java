@@ -163,6 +163,7 @@ public class LobbyController extends AnchorPane {
         }
         Scene newScene = new Scene(root);
         App.getInstance().getPrimaryStage().setScene(newScene);
+        App.getInstance().getPrimaryStage().setTitle("Othello");
     }
 
     /*
@@ -189,5 +190,6 @@ public class LobbyController extends AnchorPane {
         }
         Scene newScene = new Scene(root);
         App.getInstance().getPrimaryStage().setScene(newScene);
+        App.getInstance().getPrimaryStage().setTitle("Boter Kaas en Eieren");
     }
 }

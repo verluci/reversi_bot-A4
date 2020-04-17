@@ -192,7 +192,7 @@ public class OthelloController extends AnchorPane {
         }
         game.stopGame(Game.Player.PLAYER2);
         try {
-            App.getInstance().navigateScene("lobby");
+            App.getInstance().navigateScene("lobby", "Lobby");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -43,7 +43,7 @@ public class LoginController extends AnchorPane {
                 loginError.setText("Vul een geldige gebruikersnaam in");
             } else {
                 App.getInstance().initializeConnection(userName.getText());
-                App.getInstance().navigateScene("lobby");
+                App.getInstance().navigateScene("lobby", "Lobby");
             }
         } catch (GameClientExceptions.LoginException e) {
             loginError.setText("Deze naam is al in gebruik");
@@ -59,6 +59,6 @@ public class LoginController extends AnchorPane {
      *  @param  event  event from Button
      */
     public void goToSettings(ActionEvent actionEvent) throws IOException {
-        App.getInstance().navigateScene("settings");
+        App.getInstance().navigateScene("settings", "Instellingen");
     }
 }

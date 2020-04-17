@@ -165,7 +165,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
         }
         game.stopGame(Game.Player.PLAYER2);
         try {
-            App.getInstance().navigateScene("lobby");
+            App.getInstance().navigateScene("lobby", "Lobby");
         } catch (IOException e) {
             e.printStackTrace();
         }

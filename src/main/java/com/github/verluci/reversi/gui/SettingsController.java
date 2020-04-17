@@ -101,7 +101,7 @@ public class SettingsController extends AnchorPane {
             App.getInstance().getSelectedGraphicsDevice().setEstimatePerformance(Integer.parseInt(properties.getProperty("threads")));
         }
 
-        App.getInstance().navigateScene("login");
+        App.getInstance().navigateScene("login", "Login");
     }
 
     /*

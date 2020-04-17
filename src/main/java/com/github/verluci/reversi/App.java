@@ -70,10 +70,7 @@ public class App extends Application {
             }
         });
 
-        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("login.fxml"));
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
+        navigateScene("login", "Login");
         primaryStage.show();
     }
 
@@ -88,11 +85,12 @@ public class App extends Application {
         gameClient.login(name);
     }
 
-    public void navigateScene(String scene) throws IOException {
+    public void navigateScene(String scene, String title) throws IOException {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource(scene + ".fxml"));
         Parent root = loader.load();
         Scene newScene = new Scene(root);
         primaryStage.setScene(newScene);
+        primaryStage.setTitle(title);
     }
 
     private void setupConfig() {
