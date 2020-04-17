@@ -8,18 +8,23 @@ import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.Properties;
 
 public class LobbyController extends AnchorPane {
+    @FXML Button OthelloMoeilijk;
     @FXML private ListView currentPlayers;
     @FXML private Text welkomSpeler;
 
@@ -29,7 +34,11 @@ public class LobbyController extends AnchorPane {
 
     public void initialize() {
         welkomSpeler.setText("Welkom, " + App.getInstance().getLocalPlayer().getName());
-        updateCurrentPlayerList();
+        if(App.getInstance().getSelectedGraphicsDevice() == null){
+            OthelloMoeilijk.setOnAction(Event::consume);
+            OthelloMoeilijk.setOpacity(0.5);
+            OthelloMoeilijk.setTooltip(new Tooltip("Kies een GPU om Othello op moeilijk te kunnen spelen (herstart hiervoor de app en ga naar Instellingen)"));
+        }
     }
 
     private void updateCurrentPlayerList(){

@@ -8,13 +8,20 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
+import java.util.Properties;
 
 public class LoginController extends AnchorPane {
     @FXML private TextField userName;
     @FXML private Label loginError;
+    Properties properties;
 
     public void initialize() {
+        properties = App.getInstance().getProperties();
         loginError.setText("");
+
+        if(properties.getProperty("gpuName").equals("")){
+            loginError.setText("Er is geen GPU gevonden. Selecteer er een in Instellingen");
+        }
     }
 
     @FXML

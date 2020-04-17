@@ -8,7 +8,6 @@ import com.github.verluci.reversi.networking.types.Difficulty;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,7 +46,12 @@ public class OthelloController extends AnchorPane {
     private Button exitButton;
 
     public void initialize() {
-        BackgroundImage backgroundImage = new BackgroundImage(new Image("/hout.jpg"), BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT,BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT );
+        BackgroundImage backgroundImage = new BackgroundImage(
+                new Image("/hout.jpg"),
+                BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT,
+                BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT );
         othpane.setBackground(new Background(backgroundImage));
         localPlayer = App.getInstance().getLocalPlayer();
         player1 = new LocalUIPlayerAgent();
@@ -115,7 +119,7 @@ public class OthelloController extends AnchorPane {
         }else if (difficulty == Difficulty.NORMAAL) {
             player2 = new RandomMoveAIAgent();
         }else if (difficulty == Difficulty.MOEILIJK){
-            //player2 = new MCTSAIAgent();
+            player2 = new MCTSAIAgent(App.getInstance().getSelectedGraphicsDevice());
         }
         session = new SessionInitializer(player1, player2, OthelloGame.class);
         sessionThread = new Thread(() -> {

@@ -1,6 +1,7 @@
 package com.github.verluci.reversi;
 
 import com.github.verluci.reversi.gpgpu.GraphicsDevice;
+import com.github.verluci.reversi.gpgpu.JOCLSample;
 import com.github.verluci.reversi.networking.GameClientExceptions;
 import com.github.verluci.reversi.networking.clients.TelnetGameClient;
 import com.github.verluci.reversi.networking.types.Player;
@@ -55,6 +56,7 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         setupConfig();
+        setupGPU();
         this.primaryStage = primaryStage;
         this.primaryStage.setResizable(false);
 
@@ -130,6 +132,24 @@ public class App extends Application {
         }
     }
 
+    private void setupGPU(){
+        if(!properties.getProperty("gpuName").equals("")){
+            boolean foundDevice = false;
+            var devices = JOCLSample.getGraphicsDevices();
+            for (GraphicsDevice device : devices) {
+                if (device.getName().equals(properties.getProperty("gpuName"))) {
+                    selectedGraphicsDevice = device;
+                    device.setEstimatePerformance(Integer.parseInt(properties.getProperty("threads")));
+                    foundDevice = true;
+                    break;
+                }
+            }
+            if(!foundDevice){
+                properties.setProperty("gpuName", "");
+            }
+        }
+    }
+
     //region Getters and Setters
 
     public Stage getPrimaryStage() {
@@ -138,6 +158,10 @@ public class App extends Application {
 
     public GraphicsDevice getSelectedGraphicsDevice() {
         return selectedGraphicsDevice;
+    }
+
+    public void setSelectedGraphicsDevice(GraphicsDevice selectedGraphicsDevice) {
+        this.selectedGraphicsDevice = selectedGraphicsDevice;
     }
 
     public GameClient getGameClient() {
