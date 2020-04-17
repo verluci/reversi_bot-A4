@@ -32,7 +32,10 @@ public class LocalUIPlayerAgent extends Agent {
             move(this.x, this.y);
             doneWithTurn = false;
 
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+         System.err.println("Player unexpectedly closed the application!");
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

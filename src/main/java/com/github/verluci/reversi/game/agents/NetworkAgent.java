@@ -35,7 +35,7 @@ public class NetworkAgent extends Agent {
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("The match ended unexpectedly!");
             }
         }
     }

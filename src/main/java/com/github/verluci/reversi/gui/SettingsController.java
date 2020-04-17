@@ -112,11 +112,12 @@ public class SettingsController extends AnchorPane {
         var selectedGraphicsDevice = gpuSelectionBox.selectGraphicsDevice();
         var selectedGpuString = selectedGraphicsDevice != null ? selectedGraphicsDevice.getName() : "";
 
-        App.getInstance().setSelectedGraphicsDevice(selectedGraphicsDevice);
-
-        properties.setProperty("threads", String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
-        threads.setText(String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
-        gpuName.setText(selectedGpuString);
-        properties.setProperty("gpuName", selectedGpuString);
+        if(selectedGraphicsDevice != null) {
+            App.getInstance().setSelectedGraphicsDevice(selectedGraphicsDevice);
+            properties.setProperty("threads", String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
+            threads.setText(String.valueOf(selectedGraphicsDevice.getEstimatePerformance()));
+            gpuName.setText(selectedGpuString);
+            properties.setProperty("gpuName", selectedGpuString);
+        }
     }
 }

@@ -114,7 +114,6 @@ public class OthelloController extends AnchorPane {
         status.setText("Er word een spel gezocht");
         gameClient = App.getInstance().getGameClient();
         player2 = new NetworkAgent(gameClient, localPlayer);
-        session = new SessionInitializer(player1, player2, OthelloGame.class);
         com.github.verluci.reversi.networking.types.Player[] startingPlayer = {null};
 
         try {
@@ -133,6 +132,18 @@ public class OthelloController extends AnchorPane {
 
         gameClient.onGameStart(listener -> {
             startingPlayer[0] = listener.getStartingPlayer();
+
+            if(listener.getStartingPlayer().equals(localPlayer))
+                session = new SessionInitializer(
+                        player1,
+                        player2,
+                        OthelloGame.class);
+            else
+                session = new SessionInitializer(
+                        player2,
+                        player1,
+                        OthelloGame.class);
+
             startGame();
         });
 
