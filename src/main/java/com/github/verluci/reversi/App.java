@@ -88,8 +88,11 @@ public class App extends Application {
     public void navigateScene(String scene, String title) throws IOException {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource(scene + ".fxml"));
         Parent root = loader.load();
+        root.setCache(true);
         Scene newScene = new Scene(root);
         primaryStage.setScene(newScene);
+
+
         primaryStage.setTitle(title);
     }
 

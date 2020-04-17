@@ -150,7 +150,7 @@ public class OthelloController extends AnchorPane {
         gameClient.onGameEnd(listener -> {
             sessionThread.interrupt();
             gameClient = null;
-        });
+        }); 
     }
 
     /*
@@ -213,7 +213,7 @@ public class OthelloController extends AnchorPane {
         circle.setStrokeWidth(10);
         circle.setFill(Color.WHITE);
         circle.setOpacity(0.3);
-
+        circle.setCache(true);
         circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             player1.doMove(x, y);
         });

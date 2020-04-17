@@ -44,6 +44,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
      */
     public void initialize() {
         exitButton.setVisible(false);
+        bkepane.setCache(true);
         gameClient = App.getInstance().getGameClient();
         localPlayer = App.getInstance().getLocalPlayer();
     }
@@ -188,6 +189,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
         possibleMovePiece.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             player1.doMove(x, y);
         });
+        possibleMovePiece.setCache(true);
         return possibleMovePiece;
     }
 
@@ -202,6 +204,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
         line1.setEndY(175);
         line1.setStrokeWidth(15);
         line1.setStroke(Color.web("#8E8D8A"));
+        line1.setCache(true);
         Line line2 = new Line();
         line2.setStartX(175);
         line2.setStartY(25);
@@ -209,7 +212,9 @@ public class BoterKaasEnEierenController extends AnchorPane {
         line2.setEndY(175);
         line2.setStrokeWidth(15);
         line2.setStroke(Color.web("#8E8D8A"));
+        line2.setCache(true);
         Group group = new Group(line1, line2);
+        group.setCache(true);
         return group;
     }
 
@@ -222,6 +227,7 @@ public class BoterKaasEnEierenController extends AnchorPane {
         circle.setStrokeWidth(15);
         circle.setStroke(Color.web("#E98074"));
         circle.setFill(Color.TRANSPARENT);
+        circle.setCache(true);
         return circle;
     }
 }
