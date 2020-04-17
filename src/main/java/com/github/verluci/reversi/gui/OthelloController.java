@@ -17,108 +17,87 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
-
+/*
+ * The scene for playing Othello
+ */
 public class OthelloController extends AnchorPane {
     LocalUIPlayerAgent player1;
     Agent player2;
-    private com.github.verluci.reversi.networking.types.Player localPlayer;
     Thread sessionThread;
-
     SessionInitializer session;
-
     Game game;
 
+    private com.github.verluci.reversi.networking.types.Player localPlayer;
     private GameClient gameClient;
 
-    @FXML
-    private GridPane othpane;
+    @FXML private GridPane othpane;
+    @FXML private Text status;
+    @FXML private Text wit;
+    @FXML private Text zwart;
+    @FXML private Button exitButton;
 
-    @FXML
-    private Text status;
-
-    @FXML
-    private Text wit;
-
-    @FXML
-    private Text zwart;
-
-    @FXML
-    private Button exitButton;
-
+    /*
+     *  Method to initialize this scene UI.
+     *  Should not be called manually, done by JavaFX
+     */
     public void initialize() {
         BackgroundImage backgroundImage = new BackgroundImage(
                 new Image("/hout.jpg"),
                 BackgroundRepeat.REPEAT,
                 BackgroundRepeat.REPEAT,
                 BackgroundPosition.DEFAULT,
-                BackgroundSize.DEFAULT );
+                BackgroundSize.DEFAULT);
         othpane.setBackground(new Background(backgroundImage));
+        exitButton.setVisible(false);
+        wit.setText("Wit: 0");
+        zwart.setText("Zwart: 0");
+
         localPlayer = App.getInstance().getLocalPlayer();
         player1 = new LocalUIPlayerAgent();
-        exitButton.setVisible(false);
     }
 
-    private void updateGameBoard(){
-        int witScore = 0;
-        int zwartScore = 0;
+    /*
+     *  Method to update the gameboard.
+     *  Sets all pieces to the right state
+     */
+    private void updateGameBoard() {
+        othpane.getChildren().retainAll(othpane.getChildren().get(0));
 
         Tile[][] tiles = game.getBoard().getTiles();
 
-        othpane.getChildren().retainAll(othpane.getChildren().get(0));
-
-        for(int i = 0; i < tiles.length; i++) {
+        for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 if (tiles[i][j].getState() == TileState.POSSIBLE_MOVE) {
                     if (game.getCurrentPlayer().equals(player1.getPlayer())) {
-                        int x = i;
-                        int y = j;
-
-                        Circle circle = new Circle();
-                        circle.setRadius(35);
-                        circle.setStrokeWidth(10);
-                        circle.setFill(Color.WHITE);
-                        circle.setOpacity(0.3);
-
-                        circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                            player1.doMove( x, y);
-                        });
-
-                        othpane.add(circle, i, j);
+                        Circle possibleMovePiece = createPossibleMovePiece(i, j);
+                        othpane.add(possibleMovePiece, i, j);
                     }
-                } else if (tiles[i][j].getState() == TileState.PLAYER1) {
-                    witScore++;
-                    Image image = new Image("/othello_wit.png");
-
-                    ImageView imageView = new ImageView();
-                    imageView.setImage(image);
-                    imageView.setFitHeight(70);
-                    imageView.setPreserveRatio(true);
-                    imageView.setCache(true);
-
-                    othpane.add(imageView, i, j);
-                } else if (tiles[i][j].getState() == TileState.PLAYER2) {
-                    zwartScore++;
-                    Image image = new Image("/othello_zwart.png");
-
-                    ImageView imageView = new ImageView();
-                    imageView.setImage(image);
-                    imageView.setFitHeight(70);
-                    imageView.setPreserveRatio(true);
-                    imageView.setCache(true);
-                    othpane.add(imageView, i, j);
+                }
+                else if (tiles[i][j].getState() == TileState.PLAYER1) {
+                    ImageView whitePiece = createRegularPiece(true);
+                    othpane.add(whitePiece, i, j);
+                }
+                else if (tiles[i][j].getState() == TileState.PLAYER2) {
+                    ImageView blackPiece = createRegularPiece(false);
+                    othpane.add(blackPiece, i, j);
                 }
             }
         }
-        wit.setText("Wit: " + witScore);
-        zwart.setText("Zwart: " + zwartScore);
+
+        wit.setText("Wit: " + game.getPlayerScore(Game.Player.PLAYER1));
+        zwart.setText("Zwart: " + game.getPlayerScore(Game.Player.PLAYER2));
     }
 
-    public void setupAIGame(Difficulty difficulty){
-        if(difficulty == Difficulty.MAKKELIJK){
+    /*
+     *  Method to setup a game VS AI. Sets up AI of requested difficulty and starts game.
+     *  @param  difficulty  The difficulty that the player wants to play the game on
+     */
+    public void setupAIGame(Difficulty difficulty) {
+        if (difficulty == Difficulty.MAKKELIJK) {
             player2 = new FirstMoveAIAgent();
-        }else if (difficulty == Difficulty.NORMAAL) {
+        } else if (difficulty == Difficulty.NORMAAL) {
             player2 = new RandomMoveAIAgent();
-        }else if (difficulty == Difficulty.MOEILIJK){
+        } else if (difficulty == Difficulty.MOEILIJK) {
             player2 = new MCTSAIAgent(App.getInstance().getSelectedGraphicsDevice());
         }
         session = new SessionInitializer(player1, player2, OthelloGame.class);
@@ -128,7 +107,10 @@ public class OthelloController extends AnchorPane {
         startGame();
     }
 
-    public void setupMultiplayerGame(){
+    /*
+     *  Method to set up multiplayer game and start it once a game is found
+     */
+    public void setupMultiplayerGame() {
         status.setText("Er word een spel gezocht");
         gameClient = App.getInstance().getGameClient();
         player2 = new NetworkAgent(gameClient, localPlayer);
@@ -137,15 +119,14 @@ public class OthelloController extends AnchorPane {
 
         try {
             gameClient.subscribeToGame("Reversi");
-        }catch(Exception e){
-            System.out.println(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         sessionThread = new Thread(() -> {
-            if(startingPlayer[0].equals(localPlayer)) {
+            if (startingPlayer[0].equals(localPlayer)) {
                 session.start(player1);
-            }
-            else {
+            } else {
                 session.start(player2);
             }
         });
@@ -160,10 +141,10 @@ public class OthelloController extends AnchorPane {
         });
     }
 
-    private void startGame(){
-        wit.setText("Wit: 0");
-        zwart.setText("Zwart: 0");
-
+    /*
+     *  Method to start the game when everything is set up
+     */
+    private void startGame() {
         game = session.getGame();
 
         game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
@@ -187,9 +168,13 @@ public class OthelloController extends AnchorPane {
         sessionThread.start();
     }
 
+    /*
+     *  Method that is called by FXML Button to exit scene and return to lobby
+     *  @param actionEvent  Buttons ActionEvent
+     */
     public void exit(ActionEvent actionEvent) {
         try {
-            if(gameClient != null)
+            if (gameClient != null)
                 gameClient.forfeit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,7 +185,46 @@ public class OthelloController extends AnchorPane {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    /*
+     * Returns a Circle with low opacity that indicates of possible move.
+     * Does doMove(x, y) when clicked
+     * @param   x   x-coordinate of piece
+     * @param   y   y-coordinate of piece
+     * @return      styled Circle that does doMove(x, y) on click
+     */
+    private Circle createPossibleMovePiece(int x, int y){
+        Circle circle = new Circle();
+        circle.setRadius(35);
+        circle.setStrokeWidth(10);
+        circle.setFill(Color.WHITE);
+        circle.setOpacity(0.3);
+
+        circle.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            player1.doMove(x, y);
+        });
+        return circle;
+    }
+
+    /*
+     * Returns a black or white piece for on the game board
+     * @param   white   whether the required game piece is white or black
+     * @return          ImageView with the required game piece
+     */
+    private ImageView createRegularPiece(boolean white){
+        Image image;
+        if(white) {
+            image = new Image("/othello_wit.png");
+        } else {
+            image = new Image("/othello_zwart.png");
+        }
+        ImageView imageView = new ImageView();
+        imageView.setImage(image);
+        imageView.setFitHeight(70);
+        imageView.setPreserveRatio(true);
+        imageView.setCache(true);
+        return imageView;
     }
 }
 

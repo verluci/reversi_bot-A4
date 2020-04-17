@@ -20,13 +20,22 @@ import java.util.Properties;
 public class SettingsController extends AnchorPane {
     Properties properties;
 
-    @FXML TextField ipAddress;
-    @FXML TextField port;
-    @FXML TextField threads;
-    @FXML TextField turnTime;
-    @FXML Text gpuName;
+    @FXML
+    TextField ipAddress;
+    @FXML
+    TextField port;
+    @FXML
+    TextField threads;
+    @FXML
+    TextField turnTime;
+    @FXML
+    Text gpuName;
 
-    public void initialize(){
+    /*
+     *  Method to initialize this scene UI.
+     *  Should not be called manually, done by JavaFX
+     */
+    public void initialize() {
         findProperties();
         System.out.println();
         port.textProperty().addListener(new ChangeListener<String>() {
@@ -58,7 +67,10 @@ public class SettingsController extends AnchorPane {
         });
     }
 
-    private void findProperties(){
+    /*
+     *  Method to prefill fields with saved properties
+     */
+    private void findProperties() {
         properties = App.getInstance().getProperties();
 
         ipAddress.setText(properties.get("ipAddress").toString());
@@ -68,6 +80,11 @@ public class SettingsController extends AnchorPane {
         gpuName.setText(properties.get("gpuName").toString());
     }
 
+    /*
+     *  Used by FXML Button to save settings and navigate to Login
+     *  sets and saves properties
+     *  @param  event  event from Button
+     */
     public void opslaan() throws IOException {
         Path configFileLocation = Paths.get(System.getProperty("user.home"), ".verluci-reversi", "config.properties");
         BufferedWriter out = Files.newBufferedWriter(configFileLocation);
@@ -85,6 +102,11 @@ public class SettingsController extends AnchorPane {
         App.getInstance().navigateScene("login");
     }
 
+    /*
+     *  Used by FXML Button to open GPU selection popup
+     *  Sets graphicsdevice
+     *  @param  event  event from Button
+     */
     public void chooseGPU(ActionEvent actionEvent) {
         GPUSelectionBox gpuSelectionBox = new GPUSelectionBox(Float.parseFloat(turnTime.getText()));
         var selectedGraphicsDevice = gpuSelectionBox.selectGraphicsDevice();
