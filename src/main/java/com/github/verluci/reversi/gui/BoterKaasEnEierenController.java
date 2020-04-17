@@ -130,9 +130,6 @@ public class BoterKaasEnEierenController extends AnchorPane {
     private void startGame() {
         game = session.getGame();
 
-        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
-            status.setText("Het spel is geindigd! " + winner.name() + " heeft gewonnen");
-        });
 
         game.onGameStart(player -> {
             status.setText("Je speelt Boter Kaas en Eieren!");
@@ -148,6 +145,10 @@ public class BoterKaasEnEierenController extends AnchorPane {
             Platform.runLater(this::updateGameBoard);
         });
 
+        game.onGameEnd((winner, playerOneScore, playerTwoScore) -> {
+            gameClient = null;
+            status.setText("Het spel is geindigd! " + winner.name() + " heeft gewonnen");
+        });
         sessionThread.start();
     }
 
