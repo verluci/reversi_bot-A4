@@ -140,8 +140,6 @@ public abstract class Game {
                 notifyOnInvalidMove(player, x, y);
             }
         }
-
-        System.err.println("It is not " + player.name() + "'s turn!");
         return false;
     }
 
