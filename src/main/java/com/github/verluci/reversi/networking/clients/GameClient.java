@@ -222,13 +222,12 @@ public abstract class GameClient {
             listener.onCancelChallenge(challenge);
         }
     }
+    //endregion
 
     protected void clearGameListeners(){
-        gameEndListeners = new ArrayList<>();
-        gameStartListeners = new ArrayList<>();
-        moveListeners = new ArrayList<>();
-        turnListeners = new ArrayList<>();
+        gameEndListeners.clear();
+        gameStartListeners.clear();
+        moveListeners.clear();
+        turnListeners.clear();
     }
-
-    //endregion
 }
