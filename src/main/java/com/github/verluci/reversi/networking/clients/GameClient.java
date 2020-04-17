@@ -170,6 +170,7 @@ public abstract class GameClient {
         for (GameEndListener listener : gameEndListeners) {
             listener.onGameEnded(gameEnd);
         }
+        clearGameListeners();
     }
 
     /**
@@ -220,6 +221,13 @@ public abstract class GameClient {
         for (CancelChallengeListener listener : cancelChallengeListeners) {
             listener.onCancelChallenge(challenge);
         }
+    }
+
+    protected void clearGameListeners(){
+        gameEndListeners = new ArrayList<>();
+        gameStartListeners = new ArrayList<>();
+        moveListeners = new ArrayList<>();
+        turnListeners = new ArrayList<>();
     }
 
     //endregion
