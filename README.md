@@ -1,5 +1,9 @@
 # Reversi Bot
 
+A simple app to play othello and tick tack toe made by 
+https://github.com/verluci
+https://github.com/lutzenh
+
 ## Building
 
 If you want to build without creating a runnable `jar`-file go to the section `Building (without packaging)`, if you want to create a runnable `.jar`-file go to `Building (with packaging)`
