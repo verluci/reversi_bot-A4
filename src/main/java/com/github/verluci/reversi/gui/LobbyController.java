@@ -145,6 +145,7 @@ public class LobbyController extends AnchorPane {
      *  @param  difficulty  requested game difficulty
      */
     public void navigateOthello(boolean online, Difficulty difficulty) {
+        timeline.stop();
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("othello.fxml"));
         Parent root = null;
         try {
@@ -172,6 +173,7 @@ public class LobbyController extends AnchorPane {
      *  @param  difficulty  requested game difficulty
      */
     public void navigateTickTackToe(boolean online, Difficulty difficulty) {
+        timeline.stop();
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("boterkaaseneieren.fxml"));
         Parent root = null;
         try {
@@ -181,7 +183,6 @@ public class LobbyController extends AnchorPane {
         }
 
         BoterKaasEnEierenController controller = loader.getController();
-
 
         if (online) {
             controller.setupMultiplayerGame();
